@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { CatalogoApi } from '../../services/catalogo-api';
@@ -18,7 +18,11 @@ export default class PaginaDetalleLibro {
   protected readonly idNumerico = computed(() => Number(this.id()));
   private readonly api = inject(CatalogoApi);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly libro = this.api.libroResource(this.idNumerico);
+  /** SWR (módulo 52): un libro ya visto aparece al instante y se refresca solo. */
+  protected readonly libro = rxResource({
+    params: () => this.idNumerico(),
+    stream: ({ params: id }) => this.api.libroSwr(id),
+  });
   protected readonly portada = signal<string | null>(null);
   protected readonly progreso = signal<number | null>(null);
   protected readonly errorSubida = signal('');

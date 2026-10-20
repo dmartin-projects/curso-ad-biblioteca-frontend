@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { provideRouter, Router, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
+import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { NEVER } from 'rxjs';
 import { Almacenamiento, AlmacenamientoMemoria } from './core/almacenamiento';
 import { NotificacionesWs } from './core/notificaciones/notificaciones-ws';
@@ -38,6 +39,7 @@ async function app() {
       { provide: Almacenamiento, useClass: AlmacenamientoMemoria },
       provideHttpClient(withInterceptors([erroresInterceptor, authInterceptor])), // como en app.config
       provideHttpClientTesting(),
+      provideTanStackQuery(new QueryClient()),
       // sin WebSocket de verdad en los tests: un flujo que nunca emite
       { provide: NotificacionesWs, useValue: { mensajes$: NEVER } },
     ],
@@ -101,12 +103,13 @@ describe('Rutas de la biblioteca', () => {
     http.expectOne('/api/v1/auth/login/').flush({ access: 'nuevo' });
     await responder(http, '/api/v1/auth/me/', USUARIO_DE_PRUEBA);
     await responder(http, '/api/v1/libros/', PAGINA_VACIA); // aterriza en el catálogo
+    await responder(http, '/api/v1/generos/', []);
     await estable();
     expect(router.url).toBe('/catalogo');
   });
 
   it('admin: canMatch deja pasar al personal; al lector le sale el 404', async () => {
-    const { router, el, ir } = await app();
+    const { router, el, ir, http } = await app();
     iniciarSesionDePrueba([], false);
     await ir('/admin');
     expect(router.url).toBe('/admin'); // la URL se queda, pero coincide con **
@@ -117,7 +120,8 @@ describe('Rutas de la biblioteca', () => {
     await ir('/admin'); // ⚠️ misma URL que la actual: el router la IGNORA (onSameUrlNavigation)
     expect(el().textContent).toContain('Página no encontrada');
     await ir('/prestamos');
-    await ir('/admin');
+    // la página de admin pide los géneros: hay que responder mientras se navega
+    await Promise.all([ir('/admin'), responder(http, '/api/v1/generos/', [])]);
     expect(el().querySelector('h1')?.textContent).toBe('Administración');
   });
 

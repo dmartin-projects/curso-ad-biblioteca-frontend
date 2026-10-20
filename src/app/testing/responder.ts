@@ -22,3 +22,20 @@ export async function responder(
   }
   throw new Error(`No ha llegado ninguna petición a ${url}`);
 }
+
+/**
+ * Espera (máx. 1 s) a que se cumpla una condición sobre lo pintado. Útil con librerías que
+ * actualizan sus signals al resolver una Promise, después de que whenStable() haya terminado
+ * (TanStack Query).
+ */
+export async function hastaQue(
+  fixture: { whenStable(): Promise<unknown> },
+  condicion: () => boolean,
+): Promise<void> {
+  for (let i = 0; i < 200; i++) {
+    await fixture.whenStable();
+    if (condicion()) return;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  throw new Error('La condición no se cumplió a tiempo');
+}

@@ -38,7 +38,10 @@ async function abrir(
   const http = TestBed.inject(HttpTestingController);
   const harness = await RouterTestingHarness.create();
   const navegacion = harness.navigateByUrl(url, CatalogoPage);
-  const peticion = await responder(http, '/api/v1/libros/', respuesta, error);
+  const [peticion] = await Promise.all([
+    responder(http, '/api/v1/libros/', respuesta, error),
+    responder(http, '/api/v1/generos/', [{ id: 3, nombre: 'Ciencia ficción' }]),
+  ]);
   const cmp = await navegacion;
   await harness.fixture.whenStable();
   const el = harness.routeNativeElement!;

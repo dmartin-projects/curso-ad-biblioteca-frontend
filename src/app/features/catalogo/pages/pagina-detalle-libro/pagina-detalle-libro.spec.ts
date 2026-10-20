@@ -78,4 +78,22 @@ describe('PaginaDetalleLibro (id como input + CatalogoApi.libroResource)', () =>
     await harness.fixture.whenStable();
     expect(harness.routeNativeElement?.querySelector('app-subir-portada')).not.toBeNull();
   });
+
+  it('SWR: al volver a un libro ya visto aparece AL INSTANTE y luego se refresca', async () => {
+    let navegacion = harness.navigateByUrl('/catalogo/libros/1', PaginaDetalleLibro);
+    await responder(http, '/api/v1/libros/1/', detalle(1, 'Dune'));
+    await navegacion;
+    navegacion = harness.navigateByUrl('/catalogo/libros/2', PaginaDetalleLibro);
+    await responder(http, '/api/v1/libros/2/', detalle(2, 'Hijos de Dune'));
+    await navegacion;
+    await harness.fixture.whenStable();
+
+    harness.navigateByUrl('/catalogo/libros/1');
+    await new Promise((r) => setTimeout(r));
+    harness.fixture.detectChanges();
+    expect(h1()).toBe('Dune'); // lo cacheado, sin esperar a la red
+    await responder(http, '/api/v1/libros/1/', detalle(1, 'Dune (edición revisada)'));
+    await harness.fixture.whenStable();
+    expect(h1()).toBe('Dune (edición revisada)'); // y se corrige solo
+  });
 });

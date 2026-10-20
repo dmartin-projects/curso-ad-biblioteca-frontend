@@ -13,6 +13,7 @@ import {
   tap,
 } from 'rxjs';
 import { Usuario } from '../api/tipos';
+import { CacheHttp } from '../http/cache';
 import { ErrorApi } from '../http/errores';
 import { SIN_AUTH, SIN_AVISO_ERROR } from '../http/contexto';
 import { conCerrojo } from './cerrojo';
@@ -43,6 +44,7 @@ interface MensajeSesion {
 export class AuthStore {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly cache = inject(CacheHttp);
 
   private readonly _access = signal<string | null>(null);
   readonly access = this._access.asReadonly();
@@ -150,6 +152,7 @@ export class AuthStore {
   }
 
   private limpiar(): void {
+    this.cache.limpiar(); // los datos de un usuario no deben verlos otro en el mismo navegador
     this._access.set(null);
     this._usuario.set(null);
   }

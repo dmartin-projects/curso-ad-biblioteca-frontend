@@ -8,6 +8,15 @@
   <button type="button" appRequierePermiso="catalogo.delete_libro">Vaciar catálogo</button>
 </app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="cambiarFiltros($event)" />
+<label>
+  Género
+  <select class="genero" (change)="cambiarGenero($any($event.target).value)">
+    <option value="">Todos</option>
+    @for (g of generos.generos.value(); track g.id) {
+      <option [value]="g.id" [selected]="g.id === genero()">{{ g.nombre }}</option>
+    }
+  </select>
+</label>
 @if (resultado.error()) {
   <p role="alert">
     No se pudo cargar el catálogo.

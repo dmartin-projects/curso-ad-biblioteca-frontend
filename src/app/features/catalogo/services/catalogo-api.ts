@@ -1,6 +1,6 @@
 import { HttpClient, HttpEventType, HttpParams, httpResource } from '@angular/common/http';
 import { inject, Service, Signal } from '@angular/core';
-import { filter, map, Observable } from 'rxjs';
+import { concat, filter, map, Observable, of, tap } from 'rxjs';
 import { LibroDetalle, LibroEscritura, LibroLista, Paginado } from '../../../core/api/tipos';
 import { APP_CONFIG } from '../../../core/config';
 import { EstadoSubida } from '../interfaces/catalogo.models';
@@ -36,6 +36,23 @@ export class CatalogoApi {
     return this.http
       .get<{ titulo: string }>(`${this.base}/libros/${id}/`)
       .pipe(map((l) => l.titulo));
+  }
+
+  /**
+   * Stale-while-revalidate: emite AL INSTANTE el libro que ya se vio (si lo hay) y después la
+   * versión fresca del servidor. Memoria limitada a los 50 últimos (LRU), sin persistir nada.
+   */
+  private readonly vistos = new Map<number, LibroDetalle>();
+  libroSwr(id: number): Observable<LibroDetalle> {
+    const fresco$ = this.http.get<LibroDetalle>(`${this.base}/libros/${id}/`).pipe(
+      tap((libro) => {
+        this.vistos.delete(id);
+        this.vistos.set(id, libro);
+        if (this.vistos.size > 50) this.vistos.delete(this.vistos.keys().next().value!);
+      }),
+    );
+    const cacheado = this.vistos.get(id);
+    return cacheado ? concat(of(cacheado), fresco$) : fresco$;
   }
 
   // ── Acciones: Observables ──

@@ -11,6 +11,9 @@
   }
   @default {
     @if (libro.hasValue()) {
+      @if (libro.isLoading()) {
+        <small class="actualizando">Actualizando…</small>
+      }
       @if (portada()) {
         <img class="portada" [src]="portada()" alt="" width="120" />
       }

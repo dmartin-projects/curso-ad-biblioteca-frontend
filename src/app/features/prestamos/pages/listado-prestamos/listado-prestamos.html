@@ -5,13 +5,30 @@
   <option value="activo">Activos</option>
   <option value="devuelto">Devueltos</option>
 </select>
-@if (prestamos.isLoading()) {
-  <small aria-busy="true">Cargando…</small>
-}
-<ul>
-  @for (p of prestamos.value().results; track p.id) {
-    <li>{{ p.libro.titulo }}</li>
+@if (prestamos.isPending()) {
+  <p class="spinner" aria-busy="true">Cargando…</p>
+} @else if (prestamos.isError()) {
+  <p role="alert">No se pudieron cargar los préstamos.</p>
+} @else if (prestamos.data(); as datos) {
+  <ul>
+    @for (p of datos.results; track p.id) {
+      <li>
+        {{ p.libro.titulo }} · {{ p.estado }} · {{ p.fecha_limite | date }}
+        @if (puedeDevolver() && p.estado === 'activo') {
+          <button type="button" [disabled]="devolver.isPending()" (click)="devolver.mutate(p.id)">
+            Devolver
+          </button>
+        }
+      </li>
+    } @empty {
+      <li>No hay préstamos.</li>
+    }
+  </ul>
+  @if (prestamos.isFetching()) {
+    <small class="actualizando">Actualizando…</small>
   }
-</ul>
-<p class="total">{{ prestamos.value().count }} en total · página {{ pagina() }}</p>
-<button type="button" (click)="pagina.set(pagina() + 1)">Siguiente</button>
+  <button type="button" [disabled]="!anterior()" (click)="cursor.set(anterior())">Anterior</button>
+  <button type="button" [disabled]="!siguiente()" (click)="cursor.set(siguiente())">
+    Siguiente
+  </button>
+}

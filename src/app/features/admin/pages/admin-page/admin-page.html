@@ -3,3 +3,9 @@
   Descargar préstamos (CSV)
 </button>
 <app-dashboard [widgets]="widgets" />
+<h2>Géneros ({{ generos.generos.value().length }})</h2>
+<ul class="generos">
+  @for (g of generos.generos.value(); track g.id) {
+    <li>{{ g.nombre }}</li>
+  }
+</ul>

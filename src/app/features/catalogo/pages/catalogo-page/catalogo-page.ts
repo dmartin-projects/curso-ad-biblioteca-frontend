@@ -16,6 +16,7 @@ import { Lista } from '../../../../shared/components/lista/lista';
 import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
 import { CatalogoApi } from '../../services/catalogo-api';
+import { GenerosStore } from '../../../../core/generos/generos';
 import { CONFIG_CATALOGO } from '../../catalogo.config';
 import { FiltrosLibro, Libro } from '../../interfaces/catalogo.models';
 import { FiltrosLibros } from '../../components/filtros-libros/filtros-libros';
@@ -59,6 +60,10 @@ export default class CatalogoPage {
   // solo ?disponibles=true activa el filtro: booleanAttribute('') y booleanAttribute('0') son true
   readonly disponibles = input(false, { transform: (v: unknown) => v === 'true' || v === true });
   readonly page = input(1, { transform: (v: unknown) => numberAttribute(v, 1) });
+  readonly genero = input(undefined, {
+    transform: (v: unknown) => (v ? numberAttribute(v) : undefined),
+  });
+  protected readonly generos = inject(GenerosStore);
 
   readonly compacta = signal(false);
   readonly filtros = computed<FiltrosLibro>(() => ({
@@ -75,6 +80,7 @@ export default class CatalogoPage {
     computed(() => ({
       search: this.search(),
       disponible: this.disponibles(),
+      genero: this.genero() ? [this.genero()!] : undefined,
       page: this.page(),
       page_size: this.tamano,
     })),
@@ -96,6 +102,13 @@ export default class CatalogoPage {
       queryParams: { search: f.texto || null, disponibles: f.soloDisponibles || null, page: null },
       queryParamsHandling: 'merge',
       replaceUrl: true, // escribir no debe llenar el historial de entradas
+    });
+  }
+
+  cambiarGenero(id: string): void {
+    this.router.navigate([], {
+      queryParams: { genero: id || null, page: null },
+      queryParamsHandling: 'merge',
     });
   }
 
