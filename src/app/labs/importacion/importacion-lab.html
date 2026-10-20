@@ -1,0 +1,9 @@
+<h1>Vista previa de un extracto ({{ lineas.toLocaleString('es') }} líneas)</h1>
+<button id="en-hilo" type="button" (click)="enHiloPrincipal()">Parsear en el hilo principal</button>
+<button id="en-worker" type="button" (click)="enWorker()">Parsear en un web worker</button>
+<p class="estado">{{ estado() }}</p>
+@if (vista(); as v) {
+  <p class="resultado">
+    {{ v.total }} filas · {{ v.errores }} errores · {{ conceptos(v) }} conceptos
+  </p>
+}

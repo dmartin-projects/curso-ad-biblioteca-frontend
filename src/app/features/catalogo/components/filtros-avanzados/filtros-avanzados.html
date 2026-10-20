@@ -1,0 +1,11 @@
+<fieldset class="filtros-avanzados">
+  <legend>Publicado entre</legend>
+  <input #desde type="date" [value]="rango().desde ?? ''" aria-label="Desde" />
+  <input #hasta type="date" [value]="rango().hasta ?? ''" aria-label="Hasta" />
+  <button
+    type="button"
+    (click)="cambio.emit({ desde: desde.value || null, hasta: hasta.value || null })"
+  >
+    Aplicar
+  </button>
+</fieldset>

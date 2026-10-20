@@ -1,7 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { hastaQue, responder } from '../../../../testing/responder';
 import { iniciarSesionDePrueba } from '../../../../testing/sesion';
 import ListadoPrestamos from './listado-prestamos';
@@ -17,16 +16,11 @@ const prestamo = (id: number, estado = 'activo') => ({
 });
 const NEXT = 'http://localhost:4200/api/v1/prestamos/?cursor=cD0yMDI2';
 
-describe('ListadoPrestamos (TanStack Query)', () => {
+describe('ListadoPrestamos (rxResource + cursor)', () => {
   let http: HttpTestingController;
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        // un QueryClient nuevo por test: sin caché compartida entre tests y sin reintentos
-        provideTanStackQuery(new QueryClient({ defaultOptions: { queries: { retry: false } } })),
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     http = TestBed.inject(HttpTestingController);
   });
@@ -57,7 +51,7 @@ describe('ListadoPrestamos (TanStack Query)', () => {
 
     [...el.querySelectorAll('button')].find((b) => b.textContent?.includes('Siguiente'))!.click();
     await new Promise((r) => setTimeout(r));
-    expect(titulos()).toEqual(['Libro 1', 'Libro 2']); // placeholderData: sin "Cargando…" en blanco
+    expect(titulos()).toEqual(['Libro 1', 'Libro 2']); // se sigue viendo la página anterior mientras carga
     const req = await responder(http, '/api/v1/prestamos/', {
       next: null,
       previous: 'x',

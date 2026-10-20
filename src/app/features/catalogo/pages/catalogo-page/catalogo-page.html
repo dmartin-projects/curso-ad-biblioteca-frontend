@@ -8,6 +8,16 @@
   <button type="button" appRequierePermiso="catalogo.delete_libro">Vaciar catálogo</button>
 </app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="cambiarFiltros($event)" />
+<!-- módulo 57: el panel se descarga al pulsar el botón… o antes, cuando el navegador esté ocioso -->
+<button #botonFiltros type="button" class="boton-filtros">Filtros avanzados</button>
+@defer (on interaction(botonFiltros); prefetch on idle) {
+  <app-filtros-avanzados
+    [rango]="{ desde: publicado_desde() ?? null, hasta: publicado_hasta() ?? null }"
+    (cambio)="cambiarRango($event)"
+  />
+} @placeholder {
+  <span></span>
+}
 <label>
   Género
   <select class="genero" (change)="cambiarGenero($any($event.target).value)">

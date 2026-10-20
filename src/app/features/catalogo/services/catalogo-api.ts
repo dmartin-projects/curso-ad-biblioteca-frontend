@@ -18,6 +18,8 @@ export interface ConsultaLibros {
   disponible?: boolean;
   genero?: number[];
   ordering?: string;
+  publicado_desde?: string;
+  publicado_hasta?: string;
   page?: number;
   page_size?: number;
 }

@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { SubirPortada } from '../../components/subir-portada/subir-portada';
 /** /catalogo/libros/:id → el id llega como input (string) y el recurso recarga al cambiar. */
 @Component({
   selector: 'app-pagina-detalle-libro',
-  imports: [DetalleLibro, RouterLink, SubirPortada],
+  imports: [DetalleLibro, RouterLink, SubirPortada, NgOptimizedImage],
   templateUrl: './pagina-detalle-libro.html',
 })
 export default class PaginaDetalleLibro {

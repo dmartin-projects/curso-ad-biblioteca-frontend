@@ -1,4 +1,5 @@
 .rejilla {
+  min-height: 60vh; /* reserva el hueco mientras llegan los libros: el paginador no salta */
   display: grid;
   /* tantas columnas como quepan; min() evita el desbordamiento en pantallas de menos de 16rem */
   grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));

@@ -1,0 +1,13 @@
+<h1>Historial (scroll infinito simple)</h1>
+<ul>
+  @for (p of items(); track p.id) {
+    <li class="fila">{{ p.fecha_inicio | date }} · {{ p.libro.titulo }} · {{ p.estado }}</li>
+  }
+</ul>
+@if (siguiente()) {
+  <div class="centinela" (appAlVerse)="cargarMas()" [appAlVerseClave]="items().length">
+    {{ cargando() ? 'Cargando…' : '' }}
+  </div>
+} @else {
+  <p>No hay más.</p>
+}

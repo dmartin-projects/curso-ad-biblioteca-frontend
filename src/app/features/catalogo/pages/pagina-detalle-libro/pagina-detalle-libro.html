@@ -15,7 +15,8 @@
         <small class="actualizando">Actualizando…</small>
       }
       @if (portada()) {
-        <img class="portada" [src]="portada()" alt="" width="120" />
+        <!-- módulo 57: NgOptimizedImage; la portada es lo principal (LCP) del detalle → priority -->
+        <img class="portada" [ngSrc]="portada()!" width="240" height="360" priority alt="Portada" />
       }
       <app-detalle-libro [libro]="libro.value()" />
       @if (auth.tienePermiso('catalogo.change_libro')) {

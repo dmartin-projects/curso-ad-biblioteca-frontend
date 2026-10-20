@@ -6,6 +6,7 @@ export default [
   {
     path: '',
     title: 'Catálogo',
+    data: { precargar: true }, // módulo 57
     loadComponent: () => import('./pages/catalogo-page/catalogo-page'),
   },
   {
@@ -28,6 +29,7 @@ export default [
   {
     path: 'libros/:id',
     title: tituloLibroResolver,
+    data: { precargar: true },
     loadComponent: () => import('./pages/pagina-detalle-libro/pagina-detalle-libro'),
   },
 ] satisfies Routes;

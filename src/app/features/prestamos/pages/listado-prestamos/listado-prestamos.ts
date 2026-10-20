@@ -1,16 +1,19 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
-import {
-  injectMutation,
-  injectQuery,
-  keepPreviousData,
-  QueryClient,
-} from '@tanstack/angular-query-experimental';
-import { lastValueFrom } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../../core/auth/auth-store';
-import { cursorDe, EstadoPrestamo, PrestamosApi } from '../../../../core/prestamos/prestamos-api';
+import {
+  cursorDe,
+  EstadoPrestamo,
+  PaginaPrestamos,
+  PrestamosApi,
+} from '../../../../core/prestamos/prestamos-api';
 
-/** Ejercicio 5 del módulo 52: los préstamos con TanStack Query. */
+/**
+ * "Mis préstamos" con los resources de Angular: rxResource para cada página y linkedSignal para
+ * seguir viendo la anterior mientras carga la siguiente.
+ */
 @Component({
   selector: 'app-listado-prestamos',
   imports: [DatePipe],
@@ -18,7 +21,6 @@ import { cursorDe, EstadoPrestamo, PrestamosApi } from '../../../../core/prestam
 })
 export default class ListadoPrestamos {
   private readonly api = inject(PrestamosApi);
-  private readonly queryClient = inject(QueryClient); // injectQueryClient() está deprecado
   private readonly auth = inject(AuthStore);
   protected readonly puedeDevolver = computed(() =>
     this.auth.tienePermiso('prestamos.change_prestamo'),
@@ -31,19 +33,31 @@ export default class ListadoPrestamos {
     computation: () => null,
   });
 
-  // Clave = qué datos son. Si cambia (estado, cursor), es otra entrada de caché
-  readonly prestamos = injectQuery(() => ({
-    queryKey: ['prestamos', this.estado(), this.cursor()],
-    queryFn: () => lastValueFrom(this.api.listar({ estado: this.estado(), cursor: this.cursor() })),
-    placeholderData: keepPreviousData, // mantiene la página anterior mientras carga la nueva
-  }));
+  readonly prestamos = rxResource({
+    params: () => ({ estado: this.estado(), cursor: this.cursor() }),
+    stream: ({ params }) => this.api.listar(params),
+  });
 
-  protected readonly siguiente = computed(() => cursorDe(this.prestamos.data()?.next));
-  protected readonly anterior = computed(() => cursorDe(this.prestamos.data()?.previous));
+  /** Lo último que llegó: mientras carga la página siguiente, se sigue viendo la anterior
+   * (lo que en TanStack era placeholderData: keepPreviousData). */
+  protected readonly datos = linkedSignal<PaginaPrestamos | undefined, PaginaPrestamos | undefined>(
+    {
+      source: () => (this.prestamos.hasValue() ? this.prestamos.value() : undefined),
+      computation: (nuevo, anterior) => nuevo ?? anterior?.value,
+    },
+  );
 
-  readonly devolver = injectMutation(() => ({
-    mutationFn: (id: number) => lastValueFrom(this.api.devolver(id)),
-    // invalida TODAS las entradas que empiezan por 'prestamos' (todas las páginas y filtros)
-    onSuccess: () => this.queryClient.invalidateQueries({ queryKey: ['prestamos'] }),
-  }));
+  protected readonly siguiente = computed(() => cursorDe(this.datos()?.next));
+  protected readonly anterior = computed(() => cursorDe(this.datos()?.previous));
+  protected readonly devolviendo = signal(false);
+
+  async devolver(id: number): Promise<void> {
+    this.devolviendo.set(true);
+    try {
+      await firstValueFrom(this.api.devolver(id));
+      this.prestamos.reload(); // "invalidar" la lista
+    } finally {
+      this.devolviendo.set(false);
+    }
+  }
 }

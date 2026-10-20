@@ -5,7 +5,6 @@ import { Title } from '@angular/platform-browser';
 import { provideRouter, Router, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
-import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { NEVER } from 'rxjs';
 import { Almacenamiento, AlmacenamientoMemoria } from './core/almacenamiento';
 import { NotificacionesWs } from './core/notificaciones/notificaciones-ws';
@@ -31,6 +30,9 @@ const DETALLE = {
   autores: [{ id: 1, nombre: 'Frank', apellidos: 'Herbert', slug: 'fh' }],
 };
 
+let autorespuesta: ReturnType<typeof setInterval> | undefined;
+afterEach(() => clearInterval(autorespuesta));
+
 async function app() {
   TestBed.configureTestingModule({
     providers: [
@@ -39,7 +41,6 @@ async function app() {
       { provide: Almacenamiento, useClass: AlmacenamientoMemoria },
       provideHttpClient(withInterceptors([erroresInterceptor, authInterceptor])), // como en app.config
       provideHttpClientTesting(),
-      provideTanStackQuery(new QueryClient()),
       // sin WebSocket de verdad en los tests: un flujo que nunca emite
       { provide: NotificacionesWs, useValue: { mensajes$: NEVER } },
     ],
@@ -47,6 +48,14 @@ async function app() {
   const harness = await RouterTestingHarness.create();
   const router = TestBed.inject(Router);
   const http = TestBed.inject(HttpTestingController);
+  // "Mis préstamos" carga su lista al entrar: aquí da igual qué, así que se responde sola
+  autorespuesta = setInterval(
+    () =>
+      http
+        .match((r) => r.url === '/api/v1/prestamos/')
+        .forEach((r) => r.flush({ next: null, previous: null, results: [] })),
+    5,
+  );
   const el = () => harness.fixture.nativeElement as HTMLElement;
   const estable = () => harness.fixture.whenStable();
   const escribirEn = (selector: string, valor: string) => {

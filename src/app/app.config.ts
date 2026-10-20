@@ -4,12 +4,10 @@ import {
   ApplicationConfig,
   inject,
   provideAppInitializer,
-  provideEnvironmentInitializer,
   provideBrowserGlobalErrorListeners,
   PLATFORM_ID,
 } from '@angular/core';
 import {
-  PreloadAllModules,
   provideRouter,
   TitleStrategy,
   withComponentInputBinding,
@@ -18,7 +16,6 @@ import {
   withPreloading,
   withViewTransitions,
 } from '@angular/router';
-import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { Almacenamiento, AlmacenamientoLocal } from './core/almacenamiento';
@@ -31,6 +28,7 @@ import { cacheInterceptor } from './core/http/cache';
 import { APP_CONFIG } from './core/config';
 import { provideLocaleEs } from './core/locale';
 import { TituloConSufijo } from './core/titulo';
+import { PrecargaSeleccionada } from './core/precarga';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -57,20 +55,10 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding(),
       withViewTransitions(),
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
-      withPreloading(PreloadAllModules),
+      withPreloading(PrecargaSeleccionada), // módulo 57: solo las rutas con data.precargar
       withNavigationErrorHandler((e) => console.error('Error de navegación', e.error)),
     ),
     { provide: TitleStrategy, useClass: TituloConSufijo },
-    provideTanStackQuery(
-      new QueryClient({
-        defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true } },
-      }),
-    ),
-    // módulo 54: la caché de TanStack también tiene datos del usuario → vaciarla al cerrar sesión
-    provideEnvironmentInitializer(() => {
-      const queryClient = inject(QueryClient);
-      inject(AuthStore).sesionCerrada$.subscribe(() => queryClient.clear());
-    }),
     ...provideLocaleEs(),
     {
       provide: APP_CONFIG,

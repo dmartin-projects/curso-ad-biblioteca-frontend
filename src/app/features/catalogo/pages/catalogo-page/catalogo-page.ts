@@ -20,6 +20,10 @@ import { GenerosStore } from '../../../../core/generos/generos';
 import { CONFIG_CATALOGO } from '../../catalogo.config';
 import { FiltrosLibro, Libro } from '../../interfaces/catalogo.models';
 import { FiltrosLibros } from '../../components/filtros-libros/filtros-libros';
+import {
+  FiltrosAvanzados,
+  RangoPublicacion,
+} from '../../components/filtros-avanzados/filtros-avanzados';
 import { ListaLibros } from '../../components/lista-libros/lista-libros';
 
 const esperar = (ms: number) => new Promise<void>((listo) => setTimeout(listo, ms));
@@ -39,6 +43,7 @@ const esperar = (ms: number) => new Promise<void>((listo) => setTimeout(listo, m
     RequierePermiso,
     BotonMenu,
     RouterLink,
+    FiltrosAvanzados,
   ],
   templateUrl: './catalogo-page.html',
 })
@@ -63,6 +68,8 @@ export default class CatalogoPage {
     transform: (v: unknown) => (v ? numberAttribute(v) : undefined),
   });
   protected readonly generos = inject(GenerosStore);
+  readonly publicado_desde = input<string>();
+  readonly publicado_hasta = input<string>();
 
   readonly compacta = signal(false);
   readonly filtros = computed<FiltrosLibro>(() => ({
@@ -80,6 +87,8 @@ export default class CatalogoPage {
       search: this.search(),
       disponible: this.disponibles(),
       genero: this.genero() ? [this.genero()!] : undefined,
+      publicado_desde: this.publicado_desde(),
+      publicado_hasta: this.publicado_hasta(),
       page: this.page(),
       page_size: this.tamano,
     })),
@@ -101,6 +110,13 @@ export default class CatalogoPage {
       queryParams: { search: f.texto || null, disponibles: f.soloDisponibles || null, page: null },
       queryParamsHandling: 'merge',
       replaceUrl: true, // escribir no debe llenar el historial de entradas
+    });
+  }
+
+  cambiarRango(r: RangoPublicacion): void {
+    this.router.navigate([], {
+      queryParams: { publicado_desde: r.desde, publicado_hasta: r.hasta, page: null },
+      queryParamsHandling: 'merge',
     });
   }
 

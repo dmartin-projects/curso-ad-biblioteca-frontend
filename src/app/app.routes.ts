@@ -12,11 +12,13 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./core/layout/layout-privado'),
+    data: { precargar: true },
     canActivate: [autenticadoGuard],
     children: [
       {
         path: 'catalogo',
         providers: [provideCatalogo({ tamanoPagina: 12 })], // compartido por las páginas del catálogo
+        data: { precargar: true }, // las secciones principales sí se precargan
         loadChildren: () => import('./features/catalogo/catalogo.routes'),
       },
       {
@@ -38,11 +40,19 @@ export const routes: Routes = [
         title: 'Nuevo gasto',
         loadComponent: () => import('./features/gastos/pages/nuevo-gasto/nuevo-gasto'),
       },
-      { path: 'prestamos', loadChildren: () => import('./features/prestamos/prestamos.routes') },
+      {
+        path: 'prestamos',
+        data: { precargar: true },
+        loadChildren: () => import('./features/prestamos/prestamos.routes'),
+      },
       {
         path: 'admin',
         canMatch: [rolGuard('bibliotecario')],
         loadChildren: () => import('./features/admin/admin.routes'),
+      },
+      {
+        path: 'labs/importacion', // módulo 57: web worker
+        loadComponent: () => import('./labs/importacion/importacion-lab'),
       },
       {
         path: 'labs/movimientos', // módulo 55: @for frente a virtual scroll

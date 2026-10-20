@@ -5,17 +5,15 @@
   <option value="activo">Activos</option>
   <option value="devuelto">Devueltos</option>
 </select>
-@if (prestamos.isPending()) {
-  <p class="spinner" aria-busy="true">Cargando…</p>
-} @else if (prestamos.isError()) {
+@if (prestamos.error()) {
   <p role="alert">No se pudieron cargar los préstamos.</p>
-} @else if (prestamos.data(); as datos) {
+} @else if (datos(); as datos) {
   <ul>
     @for (p of datos.results; track p.id) {
       <li>
         {{ p.libro.titulo }} · {{ p.estado }} · {{ p.fecha_limite | date }}
         @if (puedeDevolver() && p.estado === 'activo') {
-          <button type="button" [disabled]="devolver.isPending()" (click)="devolver.mutate(p.id)">
+          <button type="button" [disabled]="devolviendo()" (click)="devolver(p.id)">
             Devolver
           </button>
         }
@@ -24,11 +22,13 @@
       <li>No hay préstamos.</li>
     }
   </ul>
-  @if (prestamos.isFetching()) {
+  @if (prestamos.isLoading()) {
     <small class="actualizando">Actualizando…</small>
   }
   <button type="button" [disabled]="!anterior()" (click)="cursor.set(anterior())">Anterior</button>
   <button type="button" [disabled]="!siguiente()" (click)="cursor.set(siguiente())">
     Siguiente
   </button>
+} @else {
+  <p class="spinner" aria-busy="true">Cargando…</p>
 }
