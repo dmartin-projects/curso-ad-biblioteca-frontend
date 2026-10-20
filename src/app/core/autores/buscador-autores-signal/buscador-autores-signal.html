@@ -1,0 +1,6 @@
+<input type="search" (input)="termino.set($any($event.target).value)" />
+<ul>
+  @for (a of resultados(); track a) {
+    <li>{{ a }}</li>
+  }
+</ul>

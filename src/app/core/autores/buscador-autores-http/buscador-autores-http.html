@@ -1,0 +1,9 @@
+<input type="search" (input)="termino.set($any($event.target).value)" />
+@if (autores.isLoading()) {
+  <small aria-busy="true">Buscando…</small>
+}
+<ul>
+  @for (a of autores.value()?.results ?? []; track a.id) {
+    <li>{{ a.nombre }} {{ a.apellidos }}</li>
+  }
+</ul>

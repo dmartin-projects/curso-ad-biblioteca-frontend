@@ -1,0 +1,10 @@
+<ul>
+  @for (n of notificaciones.value(); track n.id) {
+    <li [class.leida]="n.leida">
+      {{ n.texto }}
+      @if (!n.leida) {
+        <button type="button" (click)="marcarLeida(n)">Marcar leída</button>
+      }
+    </li>
+  }
+</ul>

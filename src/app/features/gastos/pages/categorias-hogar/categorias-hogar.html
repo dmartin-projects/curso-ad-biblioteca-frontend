@@ -1,0 +1,11 @@
+<p class="estado">{{ hogar.status() }} / {{ categorias.status() }}</p>
+@if (hogar.hasValue()) {
+  <h3>{{ hogar.value().nombre }}</h3>
+}
+@if (categorias.hasValue()) {
+  <ul>
+    @for (c of categorias.value(); track c.id) {
+      <li>{{ c.nombre }}</li>
+    }
+  </ul>
+}
