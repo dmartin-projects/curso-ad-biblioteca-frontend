@@ -1,0 +1,8 @@
+<button type="button" (click)="abierto.set(!abierto())" [attr.aria-expanded]="abierto()">
+  Filtros
+</button>
+@if (abierto()) {
+  <div class="panel" role="dialog" aria-label="Filtros">
+    <ng-content />
+  </div>
+}

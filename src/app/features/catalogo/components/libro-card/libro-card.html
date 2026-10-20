@@ -1,0 +1,17 @@
+<h3>{{ libro().titulo }}</h3>
+<p class="autores">{{ libro().autores.join(', ') }}</p>
+@if (libro().publicado; as publicado) {
+  <p>Publicado: {{ publicado | date: 'longDate' }}</p>
+}
+@switch (libro().ejemplares_disponibles) {
+  @case (0) {
+    <span class="etiqueta etiqueta--agotado">Agotado</span>
+  }
+  @case (1) {
+    <span class="etiqueta etiqueta--ultimo">¡Último ejemplar!</span>
+  }
+  @default {
+    <span class="etiqueta">{{ libro().ejemplares_disponibles }} disponibles</span>
+  }
+}
+<button type="button" (click)="onReservar()" [disabled]="agotado()">Reservar</button>

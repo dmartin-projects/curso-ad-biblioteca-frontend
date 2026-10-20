@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  padding: var(--card-padding, 1rem); // el padre lo personaliza sin ::ng-deep
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+/* agotada: borde discontinuo y otro fondo. Con opacity, el texto bajaría de 4,5:1 de contraste;
+   y la etiqueta "Agotado" lo dice también con palabras, no solo con color */
+:host(.agotado) {
+  border-style: dashed;
+  background: #f3f3f3;
+}
+h3 {
+  margin: 0 0 0.25rem;
+}
+.autores {
+  color: #555;
+}
+.etiqueta {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #e8f0fe;
+  font-size: 0.85rem;
+}
+.etiqueta--agotado {
+  background: #fde8e8;
+}
+.etiqueta--ultimo {
+  background: #fff4d6;
+}

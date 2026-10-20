@@ -1,0 +1,21 @@
+@let disponibles = libros().reduce((total, l) => total + l.ejemplares_disponibles, 0);
+
+<header>
+  <h2>Catálogo</h2>
+  <p class="contador">{{ libros().length }} libros · {{ disponibles }} ejemplares disponibles</p>
+  <app-panel-filtros>
+    <p>Aquí irán los filtros (módulo 53).</p>
+  </app-panel-filtros>
+</header>
+
+@if (reservado(); as id) {
+  <p class="aviso" role="status">Has reservado el libro {{ id }}.</p>
+}
+
+<section class="rejilla">
+  @for (libro of libros(); track libro.id) {
+    <app-libro-card [libro]="libro" (reservar)="reservar($event)" />
+  } @empty {
+    <p>No hay libros que coincidan.</p>
+  }
+</section>
