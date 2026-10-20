@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Almacenamiento, AlmacenamientoMemoria } from '../../../../core/almacenamiento';
 import { HogarStore } from '../../../../core/hogar/hogar-store';
+import { Confirmaciones } from '../../../../shared/components/confirmar/confirmaciones';
 import { EventosGastos } from '../../services/eventos-gastos';
 import { GastosApiFalsa } from '../../services/gastos-api-falsa';
 import { ListadoGastos } from './listado-gastos';
@@ -20,7 +21,7 @@ describe('ListadoGastos', () => {
     await esperar(60);
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
-    const conceptos = () => [...el.querySelectorAll('li')].map((li) => li.textContent);
+    const conceptos = () => [...el.querySelectorAll('li .concepto')].map((li) => li.textContent);
     expect(conceptos()).toEqual(['Mercadona']);
 
     const boton = el.querySelector('button')!;
@@ -56,11 +57,33 @@ describe('ListadoGastos', () => {
     await esperar(60);
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('li')?.textContent).toBe('Mercadona');
+    expect(el.querySelector('li .concepto')?.textContent).toBe('Mercadona');
     hogares.seleccionar(2);
     // la API falsa tarda 50 ms: mejor esperar a la condición (con un límite) que adivinar un tiempo
-    const conceptos = () => [...el.querySelectorAll('li')].map((li) => li.textContent);
+    const conceptos = () => [...el.querySelectorAll('li .concepto')].map((li) => li.textContent);
     await hastaQue(fixture, () => conceptos()[0] === 'Chiringuito');
-    expect([...el.querySelectorAll('li')].map((li) => li.textContent)).toEqual(['Chiringuito']);
+    expect([...el.querySelectorAll('li .concepto')].map((li) => li.textContent)).toEqual([
+      'Chiringuito',
+    ]);
+  });
+
+  it('módulo 55: borrar pide confirmación; si se cancela, no borra', async () => {
+    const fixture = TestBed.createComponent(ListadoGastos);
+    await esperar(60);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const confirmaciones = TestBed.inject(Confirmaciones);
+    const preguntar = vi.spyOn(confirmaciones, 'preguntar').mockResolvedValueOnce(false);
+    el.querySelector<HTMLButtonElement>('.borrar')!.click();
+    await esperar(80);
+    await fixture.whenStable();
+    expect(preguntar).toHaveBeenCalledWith('Borrar gasto', '¿Borrar «Mercadona»?');
+    expect(el.querySelectorAll('li')).toHaveLength(1);
+
+    preguntar.mockResolvedValueOnce(true);
+    el.querySelector<HTMLButtonElement>('.borrar')!.click();
+    await esperar(150);
+    await fixture.whenStable();
+    expect(el.querySelectorAll('li')).toHaveLength(0);
   });
 });

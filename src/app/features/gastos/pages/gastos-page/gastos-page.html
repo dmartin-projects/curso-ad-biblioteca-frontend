@@ -17,3 +17,5 @@
 <p class="clasico">Store clásico: {{ activoClasico()?.nombre ?? '—' }}</p>
 <router-outlet />
 <a routerLink="/gastos/nuevo">Nuevo gasto</a>
+<h2>Orden de las categorías</h2>
+<app-orden-categorias [(categorias)]="categorias" (reordenado)="guardarOrden($event)" />

@@ -1,0 +1,23 @@
+.lista {
+  list-style: none;
+  padding: 0;
+  max-width: 20rem;
+}
+li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--mat-sys-surface-container);
+  margin-bottom: 4px;
+}
+.nombre {
+  flex: 1;
+}
+[cdkDragHandle] {
+  cursor: grab;
+}
+.hueco {
+  height: 2.5rem;
+  border: 2px dashed var(--mat-sys-outline);
+}

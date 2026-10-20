@@ -1,0 +1,25 @@
+<h1>10.000 movimientos</h1>
+<button id="modo-for" type="button" (click)="modo.set('for')">Pintar con &#64;for</button>
+<button id="modo-virtual" type="button" (click)="modo.set('virtual')">Virtual scroll</button>
+@switch (modo()) {
+  @case ('for') {
+    <div class="viewport lista-for">
+      @for (m of movimientos; track m.id) {
+        <div class="fila">
+          <span>{{ m.fecha | date }}</span
+          ><span>{{ m.concepto }}</span>
+          <span [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
+        </div>
+      }
+    </div>
+  }
+  @case ('virtual') {
+    <cdk-virtual-scroll-viewport itemSize="56" class="viewport">
+      <div *cdkVirtualFor="let m of movimientos; trackBy: porId" class="fila">
+        <span>{{ m.fecha | date }}</span
+        ><span>{{ m.concepto }}</span>
+        <span [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
+      </div>
+    </cdk-virtual-scroll-viewport>
+  }
+}

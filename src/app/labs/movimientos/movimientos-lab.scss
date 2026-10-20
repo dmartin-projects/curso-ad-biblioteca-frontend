@@ -1,0 +1,14 @@
+.viewport {
+  height: 70vh;
+  overflow: auto;
+  display: block;
+} /* ⚠️ el viewport necesita una altura */
+.fila {
+  height: 56px;
+  display: grid;
+  grid-template-columns: 8rem 1fr 7rem;
+  align-items: center;
+}
+.negativo {
+  color: var(--mat-sys-error);
+}

@@ -45,6 +45,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/admin/admin.routes'),
       },
       {
+        path: 'labs/movimientos', // módulo 55: @for frente a virtual scroll
+        loadComponent: () => import('./labs/movimientos/movimientos-lab'),
+      },
+      {
         path: 'fugas', // laboratorio del módulo 48
         loadComponent: () => import('./labs/fugas/lab-fugas').then((m) => m.LabFugas),
       },

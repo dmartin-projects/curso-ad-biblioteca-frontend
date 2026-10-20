@@ -9,6 +9,11 @@ export default [
     loadComponent: () => import('./pages/catalogo-page/catalogo-page'),
   },
   {
+    path: 'tabla',
+    title: 'Catálogo (tabla)',
+    loadComponent: () => import('./pages/tabla-libros/tabla-libros'),
+  },
+  {
     path: 'nuevo',
     title: 'Nuevo libro',
     canDeactivate: [cambiosSinGuardarGuard],

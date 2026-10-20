@@ -1,0 +1,4 @@
+<h2 [id]="datos.ids.titulo">{{ datos.titulo }}</h2>
+<p [id]="datos.ids.mensaje">{{ datos.mensaje }}</p>
+<button type="button" (click)="ref.close(false)">Cancelar</button>
+<button type="button" class="confirmar" (click)="ref.close(true)" cdkFocusInitial>Confirmar</button>

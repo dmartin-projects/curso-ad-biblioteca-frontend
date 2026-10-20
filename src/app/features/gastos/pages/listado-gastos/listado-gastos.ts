@@ -3,6 +3,9 @@ import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, merge, of, Subject, switchMap, tap } from 'rxjs';
 import { HogarStore } from '../../../../core/hogar/hogar-store';
+import { Confirmaciones } from '../../../../shared/components/confirmar/confirmaciones';
+import { GastoSimple } from '../../services/eventos-gastos';
+import { firstValueFrom } from 'rxjs';
 import { guardarSinDobles } from '../../../../shared/utils/flujos';
 import { EventosGastos } from '../../services/eventos-gastos';
 import { GastosApiFalsa } from '../../services/gastos-api-falsa';
@@ -16,6 +19,7 @@ export class ListadoGastos {
   private readonly api = inject(GastosApiFalsa);
   private readonly eventos = inject(EventosGastos);
   private readonly hogar = inject(HogarStore);
+  private readonly confirmaciones = inject(Confirmaciones);
   protected readonly clicGuardar$ = new Subject<void>();
 
   /**
@@ -26,6 +30,14 @@ export class ListadoGastos {
     toObservable(this.hogar.activo),
     merge(of(null), this.eventos.guardado$),
   ]).pipe(switchMap(([hogar]) => this.api.listar(hogar?.id)));
+
+  /** Módulo 55: confirmar antes de borrar, con el Dialog del CDK. */
+  async borrar(g: GastoSimple): Promise<void> {
+    const ok = await this.confirmaciones.preguntar('Borrar gasto', `¿Borrar «${g.concepto}»?`);
+    if (!ok) return;
+    await firstValueFrom(this.api.borrar(g.id));
+    this.eventos.notificarGuardado(g); // "algo ha cambiado": el listado se recarga
+  }
 
   constructor() {
     this.clicGuardar$

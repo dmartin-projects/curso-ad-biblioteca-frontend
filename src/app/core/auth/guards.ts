@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, injectAsync } from '@angular/core';
 import {
   CanActivateFn,
   CanDeactivateFn,
@@ -6,7 +6,6 @@ import {
   RedirectCommand,
   Router,
 } from '@angular/router';
-import { Confirmaciones } from '../../shared/components/confirmar/confirmaciones';
 import { AuthStore } from './auth-store';
 
 export const autenticadoGuard: CanActivateFn = (_route, state) => {
@@ -27,6 +26,18 @@ export interface ConCambios {
   tieneCambios: () => boolean;
 }
 
-export const cambiosSinGuardarGuard: CanDeactivateFn<ConCambios> = (componente) =>
-  !componente.tieneCambios() ||
-  inject(Confirmaciones).preguntar('Cambios sin guardar', 'Tienes cambios sin guardar. ¿Salir igualmente?');
+/**
+ * Un CanDeactivateFn puede devolver una Promise: la navegación espera a que el usuario conteste.
+ * injectAsync: el guard está en la carga inicial y el Dialog del CDK (~115 kB) no hace falta hasta
+ * que hay algo que preguntar.
+ */
+export const cambiosSinGuardarGuard: CanDeactivateFn<ConCambios> = async (componente) => {
+  if (!componente.tieneCambios()) return true;
+  const confirmaciones = await injectAsync(() =>
+    import('../../shared/components/confirmar/confirmaciones').then((m) => m.Confirmaciones),
+  )();
+  return confirmaciones.preguntar(
+    'Cambios sin guardar',
+    'Tienes cambios sin guardar. ¿Salir igualmente?',
+  );
+};

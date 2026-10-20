@@ -1,6 +1,16 @@
 <button type="button" (click)="clicGuardar$.next()">Guardar gasto</button>
 <ul>
   @for (g of gastos$ | async; track g.id) {
-    <li>{{ g.concepto }}</li>
+    <li>
+      <span class="concepto">{{ g.concepto }}</span>
+      <button
+        type="button"
+        class="borrar"
+        [attr.aria-label]="'Borrar ' + g.concepto"
+        (click)="borrar(g)"
+      >
+        Borrar
+      </button>
+    </li>
   }
 </ul>

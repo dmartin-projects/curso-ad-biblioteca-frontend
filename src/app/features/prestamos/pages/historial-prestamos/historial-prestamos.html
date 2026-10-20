@@ -1,0 +1,10 @@
+<h1>Historial de préstamos</h1>
+<p class="contador">{{ items().length }} cargados{{ siguiente ? '' : ' (todos)' }}</p>
+<cdk-virtual-scroll-viewport itemSize="48" class="viewport" (scrolledIndexChange)="alDesplazar()">
+  <div *cdkVirtualFor="let p of items(); trackBy: porId" class="fila">
+    {{ p.fecha_inicio | date }} · {{ p.libro.titulo }} · {{ p.estado }}
+  </div>
+  @if (cargando()) {
+    <div class="fila" aria-busy="true">Cargando…</div>
+  }
+</cdk-virtual-scroll-viewport>

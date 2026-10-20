@@ -26,6 +26,11 @@ export class PrestamosApi {
     return this.http.get<PaginaPrestamos>(url, { params });
   }
 
+  /** Una página a partir de la URL "next" de la anterior (paginación por cursor). */
+  pagina(url: string): Observable<PaginaPrestamos> {
+    return this.http.get<PaginaPrestamos>(url);
+  }
+
   devolver(id: number): Observable<Prestamo> {
     return this.http.post<Prestamo>(`/api/v1/prestamos/${id}/devolver/`, null);
   }
@@ -34,4 +39,14 @@ export class PrestamosApi {
 /** Saca el cursor de la URL "next"/"previous" que devuelve DRF. */
 export function cursorDe(url: string | null | undefined): string | null {
   return url ? new URL(url, 'http://x').searchParams.get('cursor') : null;
+}
+
+/**
+ * DRF devuelve "next" ABSOLUTA (http://localhost:4200/api/v1/prestamos/?cursor=…). Los interceptores
+ * solo tratan las URL que empiezan por /api/: con la absoluta, la petición saldría SIN token.
+ */
+export function relativa(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const u = new URL(url, location.origin);
+  return u.pathname + u.search;
 }

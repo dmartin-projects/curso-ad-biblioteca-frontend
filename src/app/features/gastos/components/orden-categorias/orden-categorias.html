@@ -1,0 +1,25 @@
+<ul cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="soltar($event)" class="lista">
+  @for (c of categorias(); track c.id; let i = $index, primero = $first, ultimo = $last) {
+    <li cdkDrag [cdkDragData]="c">
+      <span cdkDragHandle aria-hidden="true">⠿</span>
+      <span class="nombre">{{ c.nombre }}</span>
+      <button
+        type="button"
+        [disabled]="primero"
+        (click)="mover(i, i - 1)"
+        [attr.aria-label]="'Subir ' + c.nombre"
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        [disabled]="ultimo"
+        (click)="mover(i, i + 1)"
+        [attr.aria-label]="'Bajar ' + c.nombre"
+      >
+        ↓
+      </button>
+      <div *cdkDragPlaceholder class="hueco"></div>
+    </li>
+  }
+</ul>
