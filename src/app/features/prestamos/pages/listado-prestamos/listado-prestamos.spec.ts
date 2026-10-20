@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PrestamosApiFalsa } from '../../services/prestamos-api-falsa';
-import { ListadoPrestamos } from './listado-prestamos';
+import ListadoPrestamos from './listado-prestamos';
 
 describe('ListadoPrestamos (rxResource)', () => {
   it('recarga al cambiar estado o página y vuelve a la 1 al filtrar', async () => {

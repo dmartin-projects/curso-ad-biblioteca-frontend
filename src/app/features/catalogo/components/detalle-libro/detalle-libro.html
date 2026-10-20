@@ -1,5 +1,7 @@
 <app-tarjeta>
-  <h2 tarjeta-titulo>{{ libro().titulo }}</h2>
+  <h1 tarjeta-titulo [style.view-transition-name]="'titulo-' + libro().id">
+    {{ libro().titulo }}
+  </h1>
   <app-pestanas>
     <app-pestana titulo="Datos">
       <p>{{ libro().autores.join(', ') }}</p>

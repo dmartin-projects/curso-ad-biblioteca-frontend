@@ -1,16 +1,47 @@
 import { Routes } from '@angular/router';
+import { autenticadoGuard, rolGuard } from './core/auth/guards';
 import { provideCatalogo } from './features/catalogo/catalogo.config';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'catalogo' },
   {
-    path: 'catalogo',
-    providers: [provideCatalogo({ tamanoPagina: 2 })], // pequeño para ver la paginación
-    loadComponent: () =>
-      import('./features/catalogo/pages/catalogo-page/catalogo-page').then((m) => m.CatalogoPage),
+    path: 'login',
+    title: 'Iniciar sesión',
+    loadComponent: () => import('./core/auth/login/login'),
   },
   {
-    path: 'fugas', // laboratorio del módulo 48
-    loadComponent: () => import('./labs/fugas/lab-fugas').then((m) => m.LabFugas),
+    path: '',
+    loadComponent: () => import('./core/layout/layout-privado'),
+    canActivate: [autenticadoGuard],
+    children: [
+      {
+        path: 'catalogo',
+        providers: [provideCatalogo({ tamanoPagina: 2 })], // compartido por las páginas del catálogo
+        loadChildren: () => import('./features/catalogo/catalogo.routes'),
+      },
+      { path: 'prestamos', loadChildren: () => import('./features/prestamos/prestamos.routes') },
+      {
+        path: 'gastos',
+        title: 'Gastos',
+        loadComponent: () =>
+          import('./features/gastos/pages/listado-gastos/listado-gastos').then(
+            (m) => m.ListadoGastos,
+          ),
+      },
+      {
+        path: 'admin',
+        canMatch: [rolGuard('bibliotecario')],
+        loadChildren: () => import('./features/admin/admin.routes'),
+      },
+      {
+        path: 'fugas', // laboratorio del módulo 48
+        loadComponent: () => import('./labs/fugas/lab-fugas').then((m) => m.LabFugas),
+      },
+    ],
+  },
+  {
+    path: '**',
+    title: 'No encontrado',
+    loadComponent: () => import('./core/no-encontrado/no-encontrado'),
   },
 ];

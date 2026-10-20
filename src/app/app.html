@@ -1,15 +1,4 @@
-<main>
-  <h1>Biblioteca</h1>
-  @if (auth.autenticado()) {
-    <button type="button" (click)="auth.cerrarSesion()">Salir</button>
-  } @else {
-    <button type="button" (click)="entrarComoBibliotecario()">Entrar como bibliotecario</button>
-  }
-  <app-dashboard [widgets]="widgets" />
-  <router-outlet />
-  <aside>
-    <app-resumen-carrito />
-    <app-buscador-autores />
-    <app-listado-gastos />
-  </aside>
-</main>
+@if (navegando()) {
+  <div class="navegando" role="progressbar" aria-label="Cargando página"></div>
+}
+<router-outlet />

@@ -1,16 +1,23 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
 import { DetalleLibro } from '../../components/detalle-libro/detalle-libro';
 import { CatalogoApi } from '../../services/catalogo-api';
 
-/** Contenedor: pide el libro a CatalogoApi (un resource); DetalleLibro solo pinta. */
+/** /catalogo/libros/:id → el id llega como input (string) y el recurso recarga al cambiar. */
 @Component({
   selector: 'app-pagina-detalle-libro',
-  imports: [DetalleLibro],
+  imports: [DetalleLibro, RouterLink],
   templateUrl: './pagina-detalle-libro.html',
 })
-export class PaginaDetalleLibro {
-  readonly id = input.required<number>();
-  readonly reservar = output<number>();
+export default class PaginaDetalleLibro {
+  private readonly carrito = inject(CarritoReservas);
+  readonly id = input.required<string>(); // los parámetros de ruta siempre son string
+  protected readonly idNumerico = computed(() => Number(this.id()));
 
-  protected readonly libro = inject(CatalogoApi).libroResource(this.id);
+  protected readonly libro = inject(CatalogoApi).libroResource(this.idNumerico);
+
+  protected reservar(): void {
+    if (this.libro.hasValue()) this.carrito.anadir(this.libro.value());
+  }
 }

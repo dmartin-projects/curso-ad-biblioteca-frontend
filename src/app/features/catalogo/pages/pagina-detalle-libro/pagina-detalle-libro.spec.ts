@@ -1,61 +1,58 @@
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { responder } from '../../../../testing/responder';
 import { LIBROS_DE_PRUEBA } from '../../services/datos-prueba';
-import { PaginaDetalleLibro } from './pagina-detalle-libro';
+import PaginaDetalleLibro from './pagina-detalle-libro';
 
-const esperar = (ms = 0) => new Promise((r) => setTimeout(r, ms));
-const json = (cuerpo: unknown, status = 200) =>
-  new Response(JSON.stringify(cuerpo), { status, headers: { 'Content-Type': 'application/json' } });
+describe('PaginaDetalleLibro (id como input + httpResource)', () => {
+  let http: HttpTestingController;
+  let harness: RouterTestingHarness;
+  const h1 = () => harness.routeNativeElement?.querySelector('h1')?.textContent?.trim();
 
-describe('PaginaDetalleLibro (resource + fetch)', () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('spinner → detalle; error → reintentar', async () => {
-    const fetchFalso = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(json(LIBROS_DE_PRUEBA[0]))
-      .mockResolvedValueOnce(json({ detail: 'No encontrado.' }, 404))
-      .mockResolvedValueOnce(json(LIBROS_DE_PRUEBA[1]));
-    vi.stubGlobal('fetch', fetchFalso);
-
-    const fixture = TestBed.createComponent(PaginaDetalleLibro);
-    fixture.componentRef.setInput('id', 1);
-    fixture.detectChanges();
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.spinner')).not.toBeNull();
-
-    await fixture.whenStable(); // los recursos cuentan como "tarea pendiente": whenStable los espera
-    expect(el.querySelector('h2')?.textContent).toBe('Dune');
-    expect(fetchFalso).toHaveBeenLastCalledWith(
-      '/api/v1/libros/1/',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    );
-
-    fixture.componentRef.setInput('id', 99);
-    await fixture.whenStable();
-    expect(el.querySelector('[role=alert]')?.textContent).toContain('Error 404');
-
-    el.querySelector<HTMLButtonElement>('[role=alert] button')!.click(); // Reintentar
-    await fixture.whenStable();
-    expect(el.querySelector('h2')?.textContent).toBe('Cien años de soledad');
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(
+          [{ path: 'catalogo/libros/:id', component: PaginaDetalleLibro }],
+          withComponentInputBinding(),
+        ),
+        provideHttpClientTesting(), // HttpClient ya está provisto por defecto en Angular 22
+      ],
+    });
+    http = TestBed.inject(HttpTestingController);
+    harness = await RouterTestingHarness.create();
   });
 
-  it('si cambia el id mientras carga, aborta la petición anterior', async () => {
-    const señales: AbortSignal[] = [];
-    vi.stubGlobal(
-      'fetch',
-      vi.fn((_url: string, init: RequestInit) => {
-        señales.push(init.signal!);
-        return esperar(50).then(() => json(LIBROS_DE_PRUEBA[0]));
-      }),
-    );
-    const fixture = TestBed.createComponent(PaginaDetalleLibro);
-    fixture.componentRef.setInput('id', 1);
-    fixture.detectChanges();
-    await esperar(10);
-    fixture.componentRef.setInput('id', 2);
-    await fixture.whenStable();
-    expect(señales).toHaveLength(2);
-    expect(señales[0].aborted).toBe(true);
-    expect(señales[1].aborted).toBe(false);
+  it('navegar de un libro a otro reutiliza el componente y recarga', async () => {
+    // no se puede hacer await de la navegación antes de responder: el recurso la mantiene "inestable"
+    const navegacion = harness.navigateByUrl('/catalogo/libros/1', PaginaDetalleLibro);
+    await responder(http, '/api/v1/libros/1/', LIBROS_DE_PRUEBA[0]);
+    const primero = await navegacion;
+    await harness.fixture.whenStable();
+    expect(h1()).toBe('Dune');
+
+    harness
+      .routeNativeElement!.querySelector<HTMLAnchorElement>('a[href="/catalogo/libros/2"]')!
+      .click();
+    await responder(http, '/api/v1/libros/2/', LIBROS_DE_PRUEBA[1]);
+    await harness.fixture.whenStable();
+    expect(harness.routeDebugElement?.componentInstance).toBe(primero); // MISMA instancia
+    expect(h1()).toBe('Cien años de soledad');
+  });
+
+  it('error → reintentar', async () => {
+    const navegacion = harness.navigateByUrl('/catalogo/libros/99');
+    await responder(http, '/api/v1/libros/99/', 'no', { status: 404, statusText: 'Not Found' });
+    await navegacion;
+    await harness.fixture.whenStable();
+    const el = harness.routeNativeElement!;
+    expect(el.querySelector('[role=alert]')).not.toBeNull();
+
+    el.querySelector<HTMLButtonElement>('[role=alert] button')!.click();
+    await responder(http, '/api/v1/libros/99/', LIBROS_DE_PRUEBA[2]);
+    await harness.fixture.whenStable();
+    expect(h1()).toBe('Hijos de Dune');
   });
 });

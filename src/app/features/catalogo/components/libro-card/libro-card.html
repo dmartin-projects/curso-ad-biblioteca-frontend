@@ -1,4 +1,10 @@
-<h3 [appResaltar]="libro().titulo" [termino]="termino()"></h3>
+<h3 [style.view-transition-name]="'titulo-' + libro().id">
+  <a
+    [routerLink]="['/catalogo/libros', libro().id]"
+    [appResaltar]="libro().titulo"
+    [termino]="termino()"
+  ></a>
+</h3>
 <p class="autores">{{ libro().autores.join(', ') }}</p>
 @if (libro().publicado; as publicado) {
   <p>Publicado: {{ publicado | date: 'longDate' }}</p>

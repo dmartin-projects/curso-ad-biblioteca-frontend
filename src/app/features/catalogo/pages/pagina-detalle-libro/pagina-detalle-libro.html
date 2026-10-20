@@ -1,16 +1,18 @@
+<a routerLink="/catalogo">← Catálogo</a>
 @switch (libro.status()) {
   @case ('loading') {
     <p class="spinner" aria-busy="true">Cargando…</p>
   }
   @case ('error') {
     <div role="alert">
-      <p>No se pudo cargar el libro ({{ libro.error()?.message }}).</p>
+      <p>No se pudo cargar el libro.</p>
       <button type="button" (click)="libro.reload()">Reintentar</button>
     </div>
   }
   @default {
     @if (libro.hasValue()) {
-      <app-detalle-libro [libro]="libro.value()" (reservar)="reservar.emit($event)" />
+      <app-detalle-libro [libro]="libro.value()" (reservar)="reservar()" />
+      <a [routerLink]="['/catalogo/libros', idNumerico() + 1]">Siguiente libro →</a>
     }
   }
 }

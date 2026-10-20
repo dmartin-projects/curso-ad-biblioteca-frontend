@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { provideLocaleEs } from '../../../../core/locale';
 import { Libro } from '../../interfaces/catalogo.models';
 import { LibroCard } from './libro-card';
@@ -20,7 +21,9 @@ async function crear(libro: Libro) {
 }
 
 describe('LibroCard', () => {
-  beforeEach(() => TestBed.configureTestingModule({ providers: provideLocaleEs() }));
+  beforeEach(() =>
+    TestBed.configureTestingModule({ providers: [...provideLocaleEs(), provideRouter([])] }),
+  );
 
   it('pinta título, autores y fecha', async () => {
     const el = (await crear(DUNE)).nativeElement as HTMLElement;

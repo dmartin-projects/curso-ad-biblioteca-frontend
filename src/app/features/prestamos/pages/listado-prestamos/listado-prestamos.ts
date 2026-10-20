@@ -7,7 +7,7 @@ import { PrestamoResumen } from '../../interfaces/prestamos.models';
   selector: 'app-listado-prestamos',
   templateUrl: './listado-prestamos.html',
 })
-export class ListadoPrestamos {
+export default class ListadoPrestamos {
   private readonly api = inject(PrestamosApiFalsa);
   readonly estado = signal<'activo' | 'devuelto' | ''>('');
   /** Al cambiar el filtro, vuelve a la página 1 (módulo 41). */

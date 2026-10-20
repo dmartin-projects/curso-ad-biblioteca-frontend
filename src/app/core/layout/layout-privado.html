@@ -1,0 +1,18 @@
+<header>
+  <strong>Biblioteca</strong>
+  <nav>
+    <a routerLink="/catalogo" routerLinkActive="activo">Catálogo</a>
+    <a routerLink="/prestamos" routerLinkActive="activo">Mis préstamos</a>
+    <a routerLink="/gastos" routerLinkActive="activo">Gastos</a>
+    @if (auth.tieneRol('bibliotecario')) {
+      <a routerLink="/admin" routerLinkActive="activo">Administración</a>
+    }
+  </nav>
+  <span>{{ auth.usuario()?.nombre }}</span>
+  <button type="button" (click)="salir()">Salir</button>
+</header>
+<main><router-outlet /></main>
+<aside>
+  <app-resumen-carrito />
+  <app-buscador-autores />
+</aside>

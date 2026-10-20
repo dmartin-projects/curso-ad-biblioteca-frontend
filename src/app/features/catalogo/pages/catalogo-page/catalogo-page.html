@@ -1,28 +1,22 @@
-<h2>Catálogo</h2>
-<button
-  *appSiPermiso="'catalogo.add_libro'; else sinPermiso"
-  type="button"
-  (click)="alta.set(true)"
->
-  Nuevo libro
-</button>
+<h1>Catálogo</h1>
+<a *appSiPermiso="'catalogo.add_libro'; else sinPermiso" routerLink="nuevo">Nuevo libro</a>
 <ng-template #sinPermiso
   ><small>Inicia sesión como bibliotecario para dar de alta libros.</small></ng-template
 >
-@if (alta()) {
-  <app-alta-libro (cerrar)="alta.set(false)" />
-}
 <app-boton-menu ayuda="Más opciones">
   <button type="button" (click)="compacta.set(!compacta())">Cambiar vista</button>
   <button type="button" appRequierePermiso="catalogo.delete_libro">Vaciar catálogo</button>
 </app-boton-menu>
-<app-filtros-libros [filtros]="filtros()" (cambio)="filtros.set($event)" />
+<app-filtros-libros [filtros]="filtros()" (cambio)="cambiarFiltros($event)" />
 <p class="contador">{{ total() }} libros</p>
 <button type="button" class="exportar" (click)="exportar()">Exportar CSV</button>
 <button type="button" (click)="compacta.set(!compacta())">
   {{ compacta() ? 'Ver tarjetas' : 'Vista compacta' }}
 </button>
 
+<!-- cada tarjeta es un <h3>: este <h2> mantiene la jerarquía de encabezados. sr-only: lo
+     "ven" los lectores de pantalla, no los ojos -->
+<h2 class="sr-only">Resultados</h2>
 @if (compacta()) {
   <app-lista [items]="pagina_()" [trackBy]="porId">
     <ng-template #fila let-libro let-i="indice">
@@ -37,4 +31,4 @@
     (reservar)="reservar($event)"
   />
 }
-<app-paginador [total]="total()" [tamano]="tamano" [(pagina)]="pagina" />
+<app-paginador [total]="total()" [tamano]="tamano" [pagina]="page()" (paginaChange)="irA($event)" />

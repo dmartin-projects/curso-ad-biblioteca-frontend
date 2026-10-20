@@ -8,7 +8,7 @@ describe('DetalleLibro', () => {
     fixture.componentRef.setInput('libro', LIBROS_DE_PRUEBA[0]);
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('app-tarjeta header')?.textContent).toBe('Dune');
+    expect(el.querySelector('app-tarjeta header')?.textContent?.trim()).toBe('Dune');
     expect(el.querySelector('[role=tabpanel]')?.textContent).toContain('Frank Herbert');
     const ids: number[] = [];
     fixture.componentInstance.reservar.subscribe((id) => ids.push(id));

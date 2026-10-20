@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Resaltar } from '../../../../shared/directives/resaltar';
 import { Libro } from '../../interfaces/catalogo.models';
 
 @Component({
   selector: 'app-libro-card',
-  imports: [DatePipe, Resaltar],
+  imports: [DatePipe, Resaltar, RouterLink],
   templateUrl: './libro-card.html',
   styleUrl: './libro-card.scss',
   host: {
