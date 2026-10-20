@@ -9,4 +9,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/catalogo/pages/catalogo-page/catalogo-page').then((m) => m.CatalogoPage),
   },
+  {
+    path: 'fugas', // laboratorio del módulo 48
+    loadComponent: () => import('./labs/fugas/lab-fugas').then((m) => m.LabFugas),
+  },
 ];

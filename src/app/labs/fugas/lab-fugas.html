@@ -1,0 +1,21 @@
+<h2>Laboratorio de fugas</h2>
+<button id="alternar-fuga" type="button" (click)="fuga.set(!fuga())">Lista con fuga</button>
+<button id="alternar-tud" type="button" (click)="tud.set(!tud())">Lista arreglada</button>
+<button id="alternar-grafico" type="button" (click)="grafico.set(!grafico())">Gráfico</button>
+<button id="alternar-grafico-sin" type="button" (click)="graficoSin.set(!graficoSin())">
+  Gráfico sin destroy()
+</button>
+<button id="guardar" type="button" (click)="guardar()">Simular gasto guardado</button>
+@if (fuga()) {
+  <app-lista-gastos-fuga />
+}
+@if (tud()) {
+  <app-lista-gastos-tud />
+}
+@if (grafico()) {
+  <app-grafico-gastos />
+  <app-reloj />
+}
+@if (graficoSin()) {
+  <app-grafico-gastos [destruir]="false" />
+}
