@@ -1,0 +1,7 @@
+<textarea
+  #ta
+  rows="1"
+  style="overflow: hidden; resize: none; box-sizing: border-box"
+  [value]="valor()"
+  (input)="valor.set(ta.value)"
+></textarea>
