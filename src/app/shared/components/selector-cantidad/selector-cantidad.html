@@ -1,0 +1,17 @@
+<button
+  type="button"
+  (click)="valor.update((v) => v - 1)"
+  [disabled]="valor() <= min()"
+  aria-label="Menos"
+>
+  −
+</button>
+<span aria-live="polite">{{ valor() }}</span>
+<button
+  type="button"
+  (click)="valor.update((v) => v + 1)"
+  [disabled]="valor() >= max()"
+  aria-label="Más"
+>
+  +
+</button>

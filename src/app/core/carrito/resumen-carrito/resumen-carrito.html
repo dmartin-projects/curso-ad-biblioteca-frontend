@@ -1,0 +1,17 @@
+<h2>Reservas ({{ carrito.total() }})</h2>
+<ul>
+  @for (linea of carrito.lineas(); track linea.libro.id) {
+    <li>
+      {{ linea.libro.titulo }}
+      <app-selector-cantidad
+        [valor]="linea.cantidad"
+        (valorChange)="carrito.cambiarCantidad(linea.libro.id, $event)"
+        [min]="1"
+        [max]="linea.libro.ejemplares_disponibles"
+      />
+      <button type="button" (click)="carrito.quitar(linea.libro.id)">Quitar</button>
+    </li>
+  } @empty {
+    <li>Aún no has reservado nada.</li>
+  }
+</ul>

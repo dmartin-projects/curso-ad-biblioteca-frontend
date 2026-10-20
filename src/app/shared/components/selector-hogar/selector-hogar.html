@@ -1,0 +1,10 @@
+<label>
+  Hogar
+  <select (change)="elegir($any($event.target).value)">
+    @for (hogar of hogares(); track hogar.id) {
+      <option [value]="hogar.id" [selected]="hogar.id === seleccionado()?.id">
+        {{ hogar.nombre }}
+      </option>
+    }
+  </select>
+</label>
