@@ -1,0 +1,19 @@
+<h1>Gastos</h1>
+@if (hogar.cargando()) {
+  <p aria-busy="true">Cargando hogares…</p>
+}
+<app-selector-hogar
+  [hogares]="hogar.hogares()"
+  [inicialId]="hogar.activo()?.id"
+  (cambio)="hogar.seleccionar($event.id)"
+/>
+<p class="hogar-activo">
+  {{ hogar.activo()?.nombre }}
+  @if (hogar.soyAdmin()) {
+    <span class="rol">(administras este hogar)</span>
+  }
+</p>
+<!-- ejercicio 4: el store clásico leído con toSignal -->
+<p class="clasico">Store clásico: {{ activoClasico()?.nombre ?? '—' }}</p>
+<router-outlet />
+<a routerLink="/gastos/nuevo">Nuevo gasto</a>

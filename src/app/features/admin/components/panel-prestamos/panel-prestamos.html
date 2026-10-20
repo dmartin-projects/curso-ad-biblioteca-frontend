@@ -1,0 +1,33 @@
+<h2>
+  Préstamos <small>({{ totalVencidos() }} vencidos en esta lista)</small>
+</h2>
+<div role="group" aria-label="Filtro">
+  @for (f of filtros; track f) {
+    <button type="button" [attr.aria-pressed]="filtro() === f" (click)="cambiarFiltro.emit(f)">
+      {{ f }}
+    </button>
+  }
+</div>
+<input
+  type="search"
+  class="buscar-prestamo"
+  placeholder="Filtrar por título…"
+  [value]="busqueda()"
+  (input)="buscar.emit($any($event.target).value)"
+/>
+@if (cargando()) {
+  <p aria-busy="true">Cargando…</p>
+}
+@if (error()) {
+  <p role="alert">{{ error() }}</p>
+}
+<ul>
+  @for (p of prestamos(); track p.id) {
+    <li>
+      {{ p.libro.titulo }} · {{ p.estado }} · {{ p.fecha_limite | date }}
+      @if (p.estado !== 'devuelto') {
+        <button type="button" (click)="devolver.emit(p.id)">Devolver</button>
+      }
+    </li>
+  }
+</ul>

@@ -3,7 +3,9 @@
   <nav>
     <a routerLink="/catalogo" routerLinkActive="activo">Catálogo</a>
     <a routerLink="/prestamos" routerLinkActive="activo">Mis préstamos</a>
-    <a routerLink="/gastos" routerLinkActive="activo">Gastos</a>
+    <a routerLink="/gastos" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }"
+      >Gastos</a
+    >
     @if (auth.tieneRol('bibliotecario')) {
       <a routerLink="/admin" routerLinkActive="activo">Administración</a>
     }

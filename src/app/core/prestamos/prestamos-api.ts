@@ -8,7 +8,8 @@ export type PaginaPrestamos = components['schemas']['PaginatedPrestamoList'];
 export type EstadoPrestamo = Prestamo['estado'];
 
 export interface ConsultaPrestamos {
-  estado?: EstadoPrestamo | '';
+  estado?: EstadoPrestamo | ''; // 'activo' | 'devuelto': "vencido" NO es un estado (módulo 14)
+  vencidos?: boolean; // activos con la fecha límite pasada: GET /prestamos/vencidos/
   cursor?: string | null;
 }
 
@@ -21,7 +22,8 @@ export class PrestamosApi {
     const params: Record<string, string> = {};
     if (c.estado) params['estado'] = c.estado;
     if (c.cursor) params['cursor'] = c.cursor;
-    return this.http.get<PaginaPrestamos>('/api/v1/prestamos/', { params });
+    const url = c.vencidos ? '/api/v1/prestamos/vencidos/' : '/api/v1/prestamos/';
+    return this.http.get<PaginaPrestamos>(url, { params });
   }
 
   devolver(id: number): Observable<Prestamo> {

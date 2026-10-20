@@ -20,19 +20,25 @@ export const routes: Routes = [
         loadChildren: () => import('./features/catalogo/catalogo.routes'),
       },
       {
+        path: 'gastos', // módulo 54: gastos del hogar activo
+        title: 'Gastos',
+        loadComponent: () => import('./features/gastos/pages/gastos-page/gastos-page'),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/gastos/pages/listado-gastos/listado-gastos').then(
+                (m) => m.ListadoGastos,
+              ),
+          },
+        ],
+      },
+      {
         path: 'gastos/nuevo', // formulario de gasto del módulo 53 (sin backend todavía)
         title: 'Nuevo gasto',
         loadComponent: () => import('./features/gastos/pages/nuevo-gasto/nuevo-gasto'),
       },
       { path: 'prestamos', loadChildren: () => import('./features/prestamos/prestamos.routes') },
-      {
-        path: 'gastos',
-        title: 'Gastos',
-        loadComponent: () =>
-          import('./features/gastos/pages/listado-gastos/listado-gastos').then(
-            (m) => m.ListadoGastos,
-          ),
-      },
       {
         path: 'admin',
         canMatch: [rolGuard('bibliotecario')],

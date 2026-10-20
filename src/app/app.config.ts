@@ -4,6 +4,7 @@ import {
   ApplicationConfig,
   inject,
   provideAppInitializer,
+  provideEnvironmentInitializer,
   provideBrowserGlobalErrorListeners,
   PLATFORM_ID,
 } from '@angular/core';
@@ -65,6 +66,11 @@ export const appConfig: ApplicationConfig = {
         defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true } },
       }),
     ),
+    // módulo 54: la caché de TanStack también tiene datos del usuario → vaciarla al cerrar sesión
+    provideEnvironmentInitializer(() => {
+      const queryClient = inject(QueryClient);
+      inject(AuthStore).sesionCerrada$.subscribe(() => queryClient.clear());
+    }),
     ...provideLocaleEs(),
     {
       provide: APP_CONFIG,

@@ -1,11 +1,20 @@
 import { TestBed } from '@angular/core/testing';
+import { Almacenamiento, AlmacenamientoMemoria } from '../../../../core/almacenamiento';
+import { HogarStore } from '../../../../core/hogar/hogar-store';
 import { EventosGastos } from '../../services/eventos-gastos';
 import { GastosApiFalsa } from '../../services/gastos-api-falsa';
 import { ListadoGastos } from './listado-gastos';
+import { hastaQue } from '../../../../testing/responder';
 
 const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 describe('ListadoGastos', () => {
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      providers: [{ provide: Almacenamiento, useClass: AlmacenamientoMemoria }],
+    }),
+  );
+
   it('doble clic = un guardado, y el listado se refresca con el evento', async () => {
     const fixture = TestBed.createComponent(ListadoGastos);
     await esperar(60);
@@ -38,5 +47,20 @@ describe('ListadoGastos', () => {
   it('desde fuera no se puede emitir en guardado$', () => {
     const eventos = TestBed.inject(EventosGastos);
     expect('next' in eventos.guardado$).toBe(false);
+  });
+
+  it('módulo 54: al cambiar de hogar activo, los gastos son los del otro hogar', async () => {
+    const hogares = TestBed.inject(HogarStore);
+    await hogares.cargar();
+    const fixture = TestBed.createComponent(ListadoGastos);
+    await esperar(60);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('li')?.textContent).toBe('Mercadona');
+    hogares.seleccionar(2);
+    // la API falsa tarda 50 ms: mejor esperar a la condición (con un límite) que adivinar un tiempo
+    const conceptos = () => [...el.querySelectorAll('li')].map((li) => li.textContent);
+    await hastaQue(fixture, () => conceptos()[0] === 'Chiringuito');
+    expect([...el.querySelectorAll('li')].map((li) => li.textContent)).toEqual(['Chiringuito']);
   });
 });

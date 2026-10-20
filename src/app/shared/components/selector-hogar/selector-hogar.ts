@@ -11,6 +11,8 @@ export interface Hogar {
 })
 export class SelectorHogar {
   readonly hogares = input.required<Hogar[]>();
+  /** El que debe aparecer elegido de entrada (por ejemplo, el hogar activo de un store). */
+  readonly inicialId = input<number | null | undefined>(null);
   readonly cambio = output<Hogar>();
 
   /** Escribible por el usuario, pero se recalcula cuando cambia la lista: conserva la selección
@@ -18,7 +20,9 @@ export class SelectorHogar {
   readonly seleccionado = linkedSignal<Hogar[], Hogar | undefined>({
     source: this.hogares,
     computation: (hogares, anterior) =>
-      hogares.find((h) => h.id === anterior?.value?.id) ?? hogares[0],
+      hogares.find((h) => h.id === anterior?.value?.id) ??
+      hogares.find((h) => h.id === this.inicialId()) ??
+      hogares[0],
   });
 
   elegir(id: string): void {

@@ -2,6 +2,17 @@
 <button id="exportar-prestamos" type="button" [disabled]="descargando()" (click)="exportar()">
   Descargar préstamos (CSV)
 </button>
+<app-panel-prestamos
+  [prestamos]="prestamos.visibles()"
+  [filtro]="prestamos.filtro()"
+  [busqueda]="prestamos.busqueda()"
+  [cargando]="prestamos.cargando()"
+  [error]="prestamos.error()"
+  [totalVencidos]="prestamos.totalVencidos()"
+  (cambiarFiltro)="prestamos.cambiarFiltro($event)"
+  (buscar)="prestamos.buscar($event)"
+  (devolver)="prestamos.devolver($event)"
+/>
 <app-dashboard [widgets]="widgets" />
 <h2>Géneros ({{ generos.generos.value().length }})</h2>
 <ul class="generos">

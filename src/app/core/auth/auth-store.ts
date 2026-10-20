@@ -3,6 +3,7 @@ import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   catchError,
+  Subject,
   finalize,
   firstValueFrom,
   map,
@@ -54,6 +55,10 @@ export class AuthStore {
   readonly permisos = computed<ReadonlySet<string>>(() => new Set(this._usuario()?.permisos ?? []));
 
   private refrescoEnCurso: Observable<string> | null = null;
+
+  /** Avisa de que la sesión se ha cerrado: cada store con datos del usuario se reinicia solo. */
+  private readonly _sesionCerrada = new Subject<void>();
+  readonly sesionCerrada$ = this._sesionCerrada.asObservable();
 
   /** El mismo canal en todas las pestañas del origen: "he cerrado sesión, cerradla vosotras". */
   private readonly canal =
@@ -153,8 +158,10 @@ export class AuthStore {
 
   private limpiar(): void {
     this.cache.limpiar(); // los datos de un usuario no deben verlos otro en el mismo navegador
+    const habiaSesion = this._usuario() !== null;
     this._access.set(null);
     this._usuario.set(null);
+    if (habiaSesion) this._sesionCerrada.next();
   }
 
   private avisarOtrasPestanas(): void {

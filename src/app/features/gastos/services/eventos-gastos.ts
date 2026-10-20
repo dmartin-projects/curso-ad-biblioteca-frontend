@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 export interface GastoSimple {
   id: number;
   concepto: string;
+  hogar?: number;
 }
 
 /** Bus de eventos: privado + asObservable() → desde fuera solo se puede escuchar. */

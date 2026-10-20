@@ -100,14 +100,14 @@ describe('ListadoPrestamos (TanStack Query)', () => {
     });
     await hasta(() => el.querySelector('li') !== null);
     const select = el.querySelector('select')!;
-    select.value = 'vencido';
+    select.value = 'devuelto';
     select.dispatchEvent(new Event('change'));
     const req = await responder(http, '/api/v1/prestamos/', {
       next: null,
       previous: null,
       results: [],
     });
-    expect(req.params.toString()).toBe('estado=vencido');
+    expect(req.params.toString()).toBe('estado=devuelto');
     await hasta(() => el.querySelector('li')?.textContent?.trim() === 'No hay préstamos.');
   });
 });
