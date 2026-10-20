@@ -3,6 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { MatPaginatorIntl } from '@angular/material/paginator';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { MatPaginatorHarness } from '@angular/material/paginator/testing';
+import { MatSortHarness } from '@angular/material/sort/testing';
+import { MatTableHarness } from '@angular/material/table/testing';
 import { PaginadorEnEspanol } from '../../../../core/paginador-es';
 import { hastaQue, responder } from '../../../../testing/responder';
 import { LIBROS_DE_PRUEBA } from '../../services/datos-prueba';
@@ -79,5 +83,30 @@ describe('TablaLibros (MatTable, orden y paginación en el servidor, estado en l
     const req = await responder(http, '/api/v1/libros/', pagina);
     expect(req.params.get('page')).toBe('2');
     expect(TestBed.inject(Router).url).toBe('/tabla?ordering=-publicado&page=2&page_size=20');
+  });
+
+  it('módulo 62: lo mismo con harnesses (sin depender de las clases CSS de Material)', async () => {
+    await abrir('/tabla');
+    const loader = TestbedHarnessEnvironment.loader(harness.fixture);
+    const tabla = await loader.getHarness(MatTableHarness);
+    expect(await tabla.getRows()).toHaveLength(5);
+    const paginador = await loader.getHarness(MatPaginatorHarness);
+    expect(await paginador.getRangeLabel()).toBe('1 – 20 de 45');
+
+    // ⚠️ la acción del harness espera a que la app esté estable, y no lo estará hasta que la
+    // petición nueva tenga respuesta: se lanza SIN await, se responde y luego se espera
+    const siguiente = paginador.goToNextPage();
+    const req = await responder(http, '/api/v1/libros/', { ...pagina, page: 2 });
+    await siguiente;
+    expect(req.params.get('page')).toBe('2');
+
+    const orden = await loader.getHarness(MatSortHarness);
+    const [publicado] = await orden.getSortHeaders({ label: 'Publicado' });
+    const clic = publicado.click();
+    await responder(http, '/api/v1/libros/', pagina);
+    await clic;
+    expect(await publicado.getSortDirection()).toBe('asc');
+    // ordenar vuelve a la página 1 (quita ?page) y conserva el tamaño
+    expect(TestBed.inject(Router).url).toBe('/tabla?page_size=20&ordering=publicado');
   });
 });

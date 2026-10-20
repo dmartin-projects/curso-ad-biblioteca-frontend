@@ -13,7 +13,7 @@ import { Avisos } from '../avisos/avisos';
 import { APP_CONFIG } from '../config';
 import { provideLocaleEs } from '../locale';
 import { cabecerasInterceptor } from './cabeceras';
-import { SIN_AVISO_ERROR } from './contexto';
+import { SIN_AUTH, SIN_AVISO_ERROR } from './contexto';
 import { ErrorApi, erroresInterceptor } from './errores';
 import { reintentosInterceptor } from './reintentos';
 
@@ -62,6 +62,18 @@ function locksEnFila() {
 }
 
 describe('aParams', () => {
+  it('módulo 62: conserva el 0 y los números; quita false, null, undefined y ""', () => {
+    const p = aParams({
+      page: 0,
+      min: 5,
+      search: '',
+      disponible: false,
+      a: null,
+      b: undefined,
+      x: true,
+    });
+    expect(p.toString()).toBe('page=0&min=5&x=true');
+  });
   it('quita vacíos y repite los arrays', () => {
     const p = aParams({ search: '', page: 2, genero: [1, 3], disponible: false, orden: undefined });
     expect(p.toString()).toBe('page=2&genero=1&genero=3');
@@ -143,6 +155,41 @@ describe('Interceptores', () => {
     }
     expect(await Promise.all(respuestas)).toEqual([{ ok: 'a' }, { ok: 'b' }, { ok: 'c' }]);
     expect(auth.access()).toBe('nuevo');
+  });
+
+  it('módulo 62: el token NO sale hacia otros dominios ni en las peticiones SIN_AUTH', () => {
+    const { http, ctrl, auth } = configurar();
+    auth.establecerSesion('secreto', USUARIO_DE_PRUEBA);
+    http.get('https://otra.example/api/v1/x').subscribe(); // empieza por https, no por /api/
+    http.get('/api/v1/publico/', { context: new HttpContext().set(SIN_AUTH, true) }).subscribe();
+    http.get('/api/v1/privado/').subscribe();
+    expect(
+      ctrl.expectOne('https://otra.example/api/v1/x').request.headers.has('Authorization'),
+    ).toBe(false);
+    expect(ctrl.expectOne('/api/v1/publico/').request.headers.has('Authorization')).toBe(false);
+    expect(ctrl.expectOne('/api/v1/privado/').request.headers.get('Authorization')).toBe(
+      'Bearer secreto',
+    );
+  });
+
+  it('módulo 62: restaurarSesion con cookie válida recupera token y usuario; sin cookie, nada', async () => {
+    const { ctrl, auth } = configurar();
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const conCookie = auth.restaurarSesion();
+    ctrl.expectOne('/api/v1/auth/refresh/').flush({ access: 'recuperado' });
+    ctrl.expectOne('/api/v1/auth/me/').flush(USUARIO_DE_PRUEBA);
+    await conCookie;
+    expect(auth.access()).toBe('recuperado');
+    expect(auth.usuario()?.email).toBe(USUARIO_DE_PRUEBA.email);
+
+    auth.logout();
+    ctrl.expectOne('/api/v1/auth/logout/').flush(null);
+    navegar.mockClear();
+    const sinCookie = auth.restaurarSesion();
+    ctrl.expectOne('/api/v1/auth/refresh/').flush({}, { status: 401, statusText: 'Unauthorized' });
+    await expect(sinCookie).resolves.toBeNull(); // no lanza: la app arranca como anónima
+    expect(auth.autenticado()).toBe(false);
+    expect(navegar).not.toHaveBeenCalled(); // y no redirige: eso lo deciden los guards
   });
 
   it('si el refresh también falla: sesión cerrada en local (sin POST /logout/) y a /login', async () => {
