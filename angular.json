@@ -21,7 +21,10 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": { "base": "dist/frontend", "media": "fuentes" },
+            "outputPath": {
+              "base": "dist/frontend",
+              "media": "fuentes"
+            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -31,11 +34,11 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/tailwind.css",
-              "src/styles.scss"
-            ],
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "styles": ["src/tailwind.css", "src/styles.scss"],
+            "webWorkerTsConfig": "tsconfig.worker.json",
+            "security": {
+              "autoCsp": true
+            }
           },
           "configurations": {
             "production": {

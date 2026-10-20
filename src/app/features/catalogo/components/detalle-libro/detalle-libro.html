@@ -29,7 +29,12 @@
     </div>
     <div ngTabPanel value="sinopsis" class="py-3">
       <ng-template ngTabContent>
-        <p>{{ libro().sinopsis || 'Sin sinopsis.' }}</p>
+        <!-- módulo 60: la sinopsis admite Markdown (negritas, listas, enlaces), saneado -->
+        @if (libro().sinopsis) {
+          <div class="sinopsis" [innerHTML]="libro().sinopsis | markdown"></div>
+        } @else {
+          <p>Sin sinopsis.</p>
+        }
         @if (libro().paginas) {
           <p>{{ libro().paginas }} páginas</p>
         }

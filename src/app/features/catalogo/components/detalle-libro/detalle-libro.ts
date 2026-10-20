@@ -2,11 +2,12 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { Tarjeta } from '../../../../shared/components/tarjeta/tarjeta';
+import { MarkdownPipe } from '../../../../shared/pipes/markdown';
 import { LibroDetalle } from '../../interfaces/catalogo.models';
 
 @Component({
   selector: 'app-detalle-libro',
-  imports: [Tarjeta, Tabs, TabList, Tab, TabPanel, TabContent, DatePipe],
+  imports: [Tarjeta, Tabs, TabList, Tab, TabPanel, TabContent, DatePipe, MarkdownPipe],
   templateUrl: './detalle-libro.html',
 })
 export class DetalleLibro {

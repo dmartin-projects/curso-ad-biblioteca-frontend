@@ -26,6 +26,8 @@
     "@ngrx/operators": "^22.0.1",
     "@ngrx/signals": "^22.0.1",
     "chart.js": "^4.5.1",
+    "dompurify": "^3.4.17",
+    "marked": "^18.1.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
