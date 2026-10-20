@@ -1,17 +1,34 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { provideRouter, Router, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
-import { LIBROS_DE_PRUEBA } from './features/catalogo/services/datos-prueba';
-
-const LIBRO = LIBROS_DE_PRUEBA[0];
+import { NEVER } from 'rxjs';
 import { Almacenamiento, AlmacenamientoMemoria } from './core/almacenamiento';
-import { AuthStore } from './core/auth/auth-store';
+import { NotificacionesWs } from './core/notificaciones/notificaciones-ws';
 import { Confirmaciones } from './shared/components/confirmar/confirmaciones';
-import { responder } from './testing/responder';
 import { TituloConSufijo } from './core/titulo';
+import { authInterceptor } from './core/auth/auth.interceptor';
+import { erroresInterceptor } from './core/http/errores';
+import { LIBROS_DE_PRUEBA } from './features/catalogo/services/datos-prueba';
+import { responder } from './testing/responder';
+import { iniciarSesionDePrueba, USUARIO_DE_PRUEBA } from './testing/sesion';
+
+const PAGINA_VACIA = {
+  count: 0,
+  total_pages: 1,
+  page: 1,
+  page_size: 12,
+  next: null,
+  previous: null,
+  results: [],
+};
+const DETALLE = {
+  ...LIBROS_DE_PRUEBA[0],
+  autores: [{ id: 1, nombre: 'Frank', apellidos: 'Herbert', slug: 'fh' }],
+};
 
 async function app() {
   TestBed.configureTestingModule({
@@ -19,53 +36,84 @@ async function app() {
       provideRouter(routes, withComponentInputBinding()),
       { provide: TitleStrategy, useClass: TituloConSufijo },
       { provide: Almacenamiento, useClass: AlmacenamientoMemoria },
+      provideHttpClient(withInterceptors([erroresInterceptor, authInterceptor])), // como en app.config
       provideHttpClientTesting(),
+      // sin WebSocket de verdad en los tests: un flujo que nunca emite
+      { provide: NotificacionesWs, useValue: { mensajes$: NEVER } },
     ],
   });
   const harness = await RouterTestingHarness.create();
   const router = TestBed.inject(Router);
+  const http = TestBed.inject(HttpTestingController);
   const el = () => harness.fixture.nativeElement as HTMLElement;
+  const estable = () => harness.fixture.whenStable();
+  const rellenarLogin = () => {
+    el().querySelector<HTMLInputElement>('input[name=email]')!.value = 'ana@example.com';
+    el().querySelector<HTMLInputElement>('input[name=password]')!.value = 'clave';
+  };
   const ir = async (url: string) => {
     await harness.navigateByUrl(url);
-    await harness.fixture.whenStable();
+    await estable();
   };
-  return { harness, router, el, ir };
+  return { harness, router, http, el, ir, estable, rellenarLogin };
 }
 
 describe('Rutas de la biblioteca', () => {
   it('sin sesión → /login?next=…; al entrar vuelve a next', async () => {
-    const { router, el, ir, harness } = await app();
+    const { router, http, el, ir, estable, rellenarLogin } = await app();
     await ir('/prestamos');
     expect(router.url).toBe('/login?next=%2Fprestamos');
     expect(TestBed.inject(Title).getTitle()).toBe('Iniciar sesión · Biblioteca');
 
-    el().querySelector<HTMLButtonElement>('#lector')!.click();
-    await harness.fixture.whenStable();
-    await new Promise((r) => setTimeout(r)); // la navegación de vuelta es asíncrona
-    await harness.fixture.whenStable();
+    rellenarLogin(); // con los campos vacíos, `required` impide el submit (también en jsdom)
+    el().querySelector<HTMLButtonElement>('button[type=submit]')!.click();
+    const login = http.expectOne('/api/v1/auth/login/');
+    expect(login.request.body).toEqual({ email: 'ana@example.com', password: 'clave' });
+    login.flush({ access: 'nuevo' });
+    await responder(http, '/api/v1/auth/me/', USUARIO_DE_PRUEBA);
+    await estable();
     expect(router.url).toBe('/prestamos');
     expect(TestBed.inject(Title).getTitle()).toBe('Mis préstamos · Biblioteca');
     expect(el().querySelector('header nav')?.textContent).toContain('Catálogo');
   });
 
+  it('credenciales malas: mensaje genérico y se queda en el login', async () => {
+    const { router, http, el, ir, estable, rellenarLogin } = await app();
+    await ir('/login');
+    rellenarLogin();
+    el().querySelector<HTMLButtonElement>('button[type=submit]')!.click();
+    http
+      .expectOne('/api/v1/auth/login/')
+      .flush(
+        { type: 'no_autenticado', title: 'Debes iniciar sesión.' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+    await estable();
+    expect(el().querySelector('[role=alert]')?.textContent).toBe('Email o contraseña incorrectos.');
+    expect(router.url).toBe('/login');
+  });
+
   it('next con una URL externa se ignora', async () => {
-    const { router, el, ir, harness } = await app();
+    const { router, http, el, ir, estable, rellenarLogin } = await app();
     await ir('/login?next=https://malo.example');
-    el().querySelector<HTMLButtonElement>('#lector')!.click();
-    await new Promise((r) => setTimeout(r));
-    await harness.fixture.whenStable();
+    rellenarLogin();
+    el().querySelector<HTMLButtonElement>('button[type=submit]')!.click();
+    http.expectOne('/api/v1/auth/login/').flush({ access: 'nuevo' });
+    await responder(http, '/api/v1/auth/me/', USUARIO_DE_PRUEBA);
+    await responder(http, '/api/v1/libros/', PAGINA_VACIA); // aterriza en el catálogo
+    await estable();
     expect(router.url).toBe('/catalogo');
   });
 
-  it('admin: canMatch deja pasar al bibliotecario; al lector le sale el 404', async () => {
+  it('admin: canMatch deja pasar al personal; al lector le sale el 404', async () => {
     const { router, el, ir } = await app();
-    TestBed.inject(AuthStore).iniciarSesion([], []);
+    iniciarSesionDePrueba([], false);
     await ir('/admin');
     expect(router.url).toBe('/admin'); // la URL se queda, pero coincide con **
     expect(el().textContent).toContain('Página no encontrada');
     expect(el().querySelector('a[href="/admin"]')).toBeNull();
 
-    TestBed.inject(AuthStore).iniciarSesion([], ['bibliotecario']);
+    iniciarSesionDePrueba([], true);
     await ir('/admin'); // ⚠️ misma URL que la actual: el router la IGNORA (onSameUrlNavigation)
     expect(el().textContent).toContain('Página no encontrada');
     await ir('/prestamos');
@@ -81,24 +129,23 @@ describe('Rutas de la biblioteca', () => {
   });
 
   it('título dinámico con el resolver del libro', async () => {
-    const { harness } = await app();
-    const http = TestBed.inject(HttpTestingController);
-    TestBed.inject(AuthStore).iniciarSesion([], []);
+    const { harness, http } = await app();
+    iniciarSesionDePrueba();
     const navegacion = harness.navigateByUrl('/catalogo/libros/1');
     await responder(http, '/api/v1/libros/1/', { id: 1, titulo: 'Dune' }); // el resolver
-    await responder(http, '/api/v1/libros/1/', { ...LIBRO, id: 1 }); // el httpResource de la página
+    await responder(http, '/api/v1/libros/1/', DETALLE); // el recurso de la página
     await navegacion;
     expect(TestBed.inject(Title).getTitle()).toBe('Dune · Biblioteca');
   });
 
   it('canDeactivate: con cambios pregunta; si dices que no, te quedas', async () => {
-    const { router, el, ir, harness } = await app();
-    TestBed.inject(AuthStore).iniciarSesion(['catalogo.add_libro'], ['bibliotecario']);
+    const { router, el, ir, estable } = await app();
+    iniciarSesionDePrueba(['catalogo.add_libro'], true);
     await ir('/catalogo/nuevo');
     const titulo = el().querySelector<HTMLInputElement>('input[name=titulo]')!;
     titulo.value = 'Dune';
     titulo.dispatchEvent(new Event('input', { bubbles: true }));
-    await harness.fixture.whenStable();
+    await estable();
 
     const preguntar = vi
       .spyOn(TestBed.inject(Confirmaciones), 'preguntar')

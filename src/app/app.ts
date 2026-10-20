@@ -9,10 +9,11 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { filter, map } from 'rxjs';
+import { AvisosGlobales } from './core/avisos/avisos-globales/avisos-globales';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AvisosGlobales],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

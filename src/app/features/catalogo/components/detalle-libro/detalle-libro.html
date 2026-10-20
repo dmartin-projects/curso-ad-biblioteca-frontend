@@ -4,11 +4,14 @@
   </h1>
   <app-pestanas>
     <app-pestana titulo="Datos">
-      <p>{{ libro().autores.join(', ') }}</p>
+      <p class="autores">{{ autores() }}</p>
       <p>ISBN {{ libro().isbn }} · {{ libro().publicado | date: 'yyyy' }}</p>
     </app-pestana>
-    <app-pestana titulo="Ejemplares">
-      <p>{{ libro().ejemplares_disponibles }} disponibles</p>
+    <app-pestana titulo="Sinopsis">
+      <p>{{ libro().sinopsis || 'Sin sinopsis.' }}</p>
+      @if (libro().paginas) {
+        <p>{{ libro().paginas }} páginas</p>
+      }
     </app-pestana>
   </app-pestanas>
   <div tarjeta-acciones>

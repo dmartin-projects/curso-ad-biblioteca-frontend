@@ -10,6 +10,7 @@ const DUNE: Libro = {
   isbn: '9780441172719',
   autores: ['Frank Herbert', 'Brian Herbert'],
   publicado: '1965-08-01',
+  generos: [],
   ejemplares_disponibles: 2,
 };
 

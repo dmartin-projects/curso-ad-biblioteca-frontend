@@ -16,7 +16,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'catalogo',
-        providers: [provideCatalogo({ tamanoPagina: 2 })], // compartido por las páginas del catálogo
+        providers: [provideCatalogo({ tamanoPagina: 12 })], // compartido por las páginas del catálogo
         loadChildren: () => import('./features/catalogo/catalogo.routes'),
       },
       { path: 'prestamos', loadChildren: () => import('./features/prestamos/prestamos.routes') },

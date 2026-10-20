@@ -8,8 +8,18 @@
   <button type="button" appRequierePermiso="catalogo.delete_libro">Vaciar catálogo</button>
 </app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="cambiarFiltros($event)" />
-<p class="contador">{{ total() }} libros</p>
-<button type="button" class="exportar" (click)="exportar()">Exportar CSV</button>
+@if (resultado.error()) {
+  <p role="alert">
+    No se pudo cargar el catálogo.
+    <button type="button" (click)="resultado.reload()">Reintentar</button>
+  </p>
+}
+<!-- UNA línea de estado de altura fija: un "Cargando…" que aparece y desaparece encima de la
+     rejilla la empujaría entera (CLS) -->
+<p class="contador" aria-live="polite" [attr.aria-busy]="resultado.isLoading()">
+  {{ resultado.isLoading() && !resultado.hasValue() ? 'Cargando…' : total() + ' libros' }}
+</p>
+<button type="button" class="exportar" (click)="exportar()">Exportar esta página</button>
 <button type="button" (click)="compacta.set(!compacta())">
   {{ compacta() ? 'Ver tarjetas' : 'Vista compacta' }}
 </button>
@@ -18,7 +28,7 @@
      "ven" los lectores de pantalla, no los ojos -->
 <h2 class="sr-only">Resultados</h2>
 @if (compacta()) {
-  <app-lista [items]="pagina_()" [trackBy]="porId">
+  <app-lista [items]="visibles()" [trackBy]="porId">
     <ng-template #fila let-libro let-i="indice">
       <strong>{{ i + 1 }}. {{ libro.titulo }}</strong> — {{ libro.autores.join(', ') }}
     </ng-template>
@@ -26,7 +36,7 @@
   </app-lista>
 } @else {
   <app-lista-libros
-    [libros]="pagina_()"
+    [libros]="visibles()"
     [termino]="filtros().texto"
     (reservar)="reservar($event)"
   />

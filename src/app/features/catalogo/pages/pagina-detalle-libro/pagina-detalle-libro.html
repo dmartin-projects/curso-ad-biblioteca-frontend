@@ -11,7 +11,17 @@
   }
   @default {
     @if (libro.hasValue()) {
-      <app-detalle-libro [libro]="libro.value()" (reservar)="reservar()" />
+      @if (portada()) {
+        <img class="portada" [src]="portada()" alt="" width="120" />
+      }
+      <app-detalle-libro [libro]="libro.value()" />
+      @if (auth.tienePermiso('catalogo.change_libro')) {
+        <app-subir-portada
+          [progreso]="progreso()"
+          [error]="errorSubida()"
+          (archivo)="subirPortada($event)"
+        />
+      }
       <a [routerLink]="['/catalogo/libros', idNumerico() + 1]">Siguiente libro →</a>
     }
   }

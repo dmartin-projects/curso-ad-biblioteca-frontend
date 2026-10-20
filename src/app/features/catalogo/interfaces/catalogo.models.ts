@@ -1,12 +1,9 @@
-// features/catalogo/interfaces/catalogo.models.ts — la forma que devuelve GET /api/v1/libros/ (módulo 33)
-export interface Libro {
-  id: number;
-  titulo: string;
-  isbn: string;
-  autores: string[];
-  publicado: string | null; // ISO 8601 ("1965-08-01"): el formato lo pone el pipe date
-  ejemplares_disponibles: number;
-}
+// features/catalogo/interfaces/catalogo.models.ts — desde el módulo 51, los tipos salen del esquema OpenAPI
+import type { LibroDetalle, LibroLista } from '../../../core/api/tipos';
+
+/** Un libro tal como llega en los listados (GET /api/v1/libros/). */
+export type Libro = LibroLista;
+export type { LibroDetalle };
 
 export interface FiltrosLibro {
   texto: string;
@@ -14,3 +11,7 @@ export interface FiltrosLibro {
 }
 
 export const FILTROS_VACIOS: FiltrosLibro = { texto: '', soloDisponibles: false };
+
+/** Cómo va una subida de portada: el % enviado y, al terminar, la URL de la portada nueva. */
+export type EstadoSubida =
+  { tipo: 'progreso'; porcentaje: number } | { tipo: 'hecha'; portada: string };

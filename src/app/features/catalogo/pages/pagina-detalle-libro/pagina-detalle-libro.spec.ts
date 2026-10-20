@@ -3,10 +3,19 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { responder } from '../../../../testing/responder';
-import { LIBROS_DE_PRUEBA } from '../../services/datos-prueba';
+import { iniciarSesionDePrueba } from '../../../../testing/sesion';
+import { LibroDetalle } from '../../interfaces/catalogo.models';
 import PaginaDetalleLibro from './pagina-detalle-libro';
 
-describe('PaginaDetalleLibro (id como input + httpResource)', () => {
+const detalle = (id: number, titulo: string): LibroDetalle => ({
+  id,
+  titulo,
+  isbn: '9780441172719',
+  publicado: '1965-08-01',
+  autores: [{ id: 1, nombre: 'Frank', apellidos: 'Herbert', slug: 'frank-herbert' }],
+});
+
+describe('PaginaDetalleLibro (id como input + CatalogoApi.libroResource)', () => {
   let http: HttpTestingController;
   let harness: RouterTestingHarness;
   const h1 = () => harness.routeNativeElement?.querySelector('h1')?.textContent?.trim();
@@ -28,18 +37,21 @@ describe('PaginaDetalleLibro (id como input + httpResource)', () => {
   it('navegar de un libro a otro reutiliza el componente y recarga', async () => {
     // no se puede hacer await de la navegación antes de responder: el recurso la mantiene "inestable"
     const navegacion = harness.navigateByUrl('/catalogo/libros/1', PaginaDetalleLibro);
-    await responder(http, '/api/v1/libros/1/', LIBROS_DE_PRUEBA[0]);
+    await responder(http, '/api/v1/libros/1/', detalle(1, 'Dune'));
     const primero = await navegacion;
     await harness.fixture.whenStable();
     expect(h1()).toBe('Dune');
+    expect(harness.routeNativeElement?.querySelector('.autores')?.textContent).toBe(
+      'Frank Herbert',
+    );
 
     harness
       .routeNativeElement!.querySelector<HTMLAnchorElement>('a[href="/catalogo/libros/2"]')!
       .click();
-    await responder(http, '/api/v1/libros/2/', LIBROS_DE_PRUEBA[1]);
+    await responder(http, '/api/v1/libros/2/', detalle(2, 'Hijos de Dune'));
     await harness.fixture.whenStable();
     expect(harness.routeDebugElement?.componentInstance).toBe(primero); // MISMA instancia
-    expect(h1()).toBe('Cien años de soledad');
+    expect(h1()).toBe('Hijos de Dune');
   });
 
   it('error → reintentar', async () => {
@@ -51,8 +63,19 @@ describe('PaginaDetalleLibro (id como input + httpResource)', () => {
     expect(el.querySelector('[role=alert]')).not.toBeNull();
 
     el.querySelector<HTMLButtonElement>('[role=alert] button')!.click();
-    await responder(http, '/api/v1/libros/99/', LIBROS_DE_PRUEBA[2]);
+    await responder(http, '/api/v1/libros/99/', detalle(99, 'Dune'));
     await harness.fixture.whenStable();
-    expect(h1()).toBe('Hijos de Dune');
+    expect(h1()).toBe('Dune');
+  });
+
+  it('solo quien puede editar ve la subida de portada', async () => {
+    const navegacion = harness.navigateByUrl('/catalogo/libros/1');
+    await responder(http, '/api/v1/libros/1/', detalle(1, 'Dune'));
+    await navegacion;
+    await harness.fixture.whenStable();
+    expect(harness.routeNativeElement?.querySelector('app-subir-portada')).toBeNull();
+    iniciarSesionDePrueba(['catalogo.change_libro'], true);
+    await harness.fixture.whenStable();
+    expect(harness.routeNativeElement?.querySelector('app-subir-portada')).not.toBeNull();
   });
 });

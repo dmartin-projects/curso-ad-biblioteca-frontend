@@ -1,2 +1,5 @@
 <h1>Administración</h1>
+<button id="exportar-prestamos" type="button" [disabled]="descargando()" (click)="exportar()">
+  Descargar préstamos (CSV)
+</button>
 <app-dashboard [widgets]="widgets" />

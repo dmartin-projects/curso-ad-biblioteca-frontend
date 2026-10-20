@@ -1,4 +1,4 @@
-// Datos fijos hasta conectar con la API (módulo 51)
+// Datos fijos para los tests (desde el módulo 51 la app usa la API)
 import { Libro } from '../interfaces/catalogo.models';
 
 export const LIBROS_DE_PRUEBA: Libro[] = [
@@ -8,6 +8,7 @@ export const LIBROS_DE_PRUEBA: Libro[] = [
     isbn: '9780441172719',
     autores: ['Frank Herbert'],
     publicado: '1965-08-01',
+    generos: [],
     ejemplares_disponibles: 2,
   },
   {
@@ -16,6 +17,7 @@ export const LIBROS_DE_PRUEBA: Libro[] = [
     isbn: '9788497592208',
     autores: ['Gabriel García Márquez'],
     publicado: '1967-05-30',
+    generos: [],
     ejemplares_disponibles: 0,
   },
   {
@@ -24,6 +26,7 @@ export const LIBROS_DE_PRUEBA: Libro[] = [
     isbn: '9788497593793',
     autores: ['Frank Herbert'],
     publicado: '1976-01-01',
+    generos: [],
     ejemplares_disponibles: 1,
   },
   {
@@ -32,6 +35,7 @@ export const LIBROS_DE_PRUEBA: Libro[] = [
     isbn: '9788445076699',
     autores: ['Ursula K. Le Guin'],
     publicado: '1969-03-01',
+    generos: [],
     ejemplares_disponibles: 3,
   },
   {
@@ -40,6 +44,7 @@ export const LIBROS_DE_PRUEBA: Libro[] = [
     isbn: '9788497593069',
     autores: ['Isaac Asimov'],
     publicado: '1951-06-01',
+    generos: [],
     ejemplares_disponibles: 1,
   },
 ];

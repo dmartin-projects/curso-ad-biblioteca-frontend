@@ -1,0 +1,10 @@
+<label>
+  Portada
+  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="elegir($event)" />
+</label>
+@if (progreso() !== null) {
+  <progress max="100" [value]="progreso()">{{ progreso() }} %</progress>
+}
+@if (errorLocal() || error(); as mensaje) {
+  <p role="alert">{{ mensaje }}</p>
+}

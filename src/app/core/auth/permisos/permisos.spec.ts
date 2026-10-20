@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AuthStore } from '../auth-store';
+import { iniciarSesionDePrueba } from '../../../testing/sesion';
 import { RequierePermiso } from './requiere-permiso';
 import { SiPermiso } from './si-permiso';
 
@@ -23,7 +23,7 @@ describe('Directivas de permisos', () => {
     expect(el.querySelector('#aviso')).not.toBeNull();
     expect(el.querySelector<HTMLButtonElement>('#nuevo')!.disabled).toBe(true);
 
-    TestBed.inject(AuthStore).iniciarSesion(['catalogo.delete_libro', 'catalogo.add_libro']);
+    iniciarSesionDePrueba(['catalogo.delete_libro', 'catalogo.add_libro']);
     await fixture.whenStable();
     expect(el.querySelector('#borrar')).not.toBeNull();
     expect(el.querySelector('#aviso')).toBeNull();

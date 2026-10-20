@@ -1,0 +1,31 @@
+<!-- los roles van en contenedores: en la <ul> no están permitidos (axe: aria-allowed-role) -->
+<div class="avisos">
+  <!-- role="alert" se anuncia al aparecer: el contenedor solo existe mientras hay errores -->
+  @if (errores().length) {
+    <div role="alert">
+      <ul>
+        @for (a of errores(); track a.id) {
+          <li class="aviso aviso--error">
+            <span>
+              {{ a.texto }}
+              @if (a.ref) {
+                <small class="ref">Ref. {{ a.ref }}</small>
+              }
+            </span>
+            <button type="button" aria-label="Cerrar aviso" (click)="avisos.cerrar(a.id)">×</button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+  <div role="status">
+    <ul>
+      @for (a of otros(); track a.id) {
+        <li [class]="'aviso aviso--' + a.tipo">
+          {{ a.texto }}
+          <button type="button" aria-label="Cerrar aviso" (click)="avisos.cerrar(a.id)">×</button>
+        </li>
+      }
+    </ul>
+  </div>
+</div>

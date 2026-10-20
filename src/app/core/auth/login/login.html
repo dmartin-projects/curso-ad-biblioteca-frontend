@@ -1,7 +1,14 @@
 <main>
   <h1>Iniciar sesión</h1>
-  <button id="lector" type="button" (click)="entrar([], [])">Entrar como lector</button>
-  <button id="bibliotecario" type="button" (click)="entrar(permisosBiblio, ['bibliotecario'])">
-    Entrar como bibliotecario
-  </button>
+  <form (submit)="entrar($event, email.value, password.value)">
+    <label>Email <input #email name="email" type="email" autocomplete="username" required /></label>
+    <label
+      >Contraseña
+      <input #password name="password" type="password" autocomplete="current-password" required
+    /></label>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <button type="submit" [disabled]="enviando()">Entrar</button>
+  </form>
 </main>

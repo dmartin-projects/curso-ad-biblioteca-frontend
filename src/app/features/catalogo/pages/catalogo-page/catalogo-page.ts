@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  debounced,
   inject,
   injectAsync,
   input,
@@ -14,21 +15,16 @@ import { BotonMenu } from '../../../../shared/components/boton-menu/boton-menu';
 import { Lista } from '../../../../shared/components/lista/lista';
 import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
+import { CatalogoApi } from '../../services/catalogo-api';
 import { CONFIG_CATALOGO } from '../../catalogo.config';
 import { FiltrosLibro, Libro } from '../../interfaces/catalogo.models';
-import { LIBROS_DE_PRUEBA } from '../../services/datos-prueba';
 import { FiltrosLibros } from '../../components/filtros-libros/filtros-libros';
 import { ListaLibros } from '../../components/lista-libros/lista-libros';
 
-function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
-}
+const esperar = (ms: number) => new Promise<void>((listo) => setTimeout(listo, ms));
 
 /**
- * Contenedor. Filtros y página viven en la URL (?search=dune&disponibles=true&page=2):
+ * Contenedor. Los datos vienen de la API; filtros y página viven en la URL (?search=dune&disponibles=true&page=2):
  * se puede recargar, compartir el enlace o volver atrás sin perderlos.
  */
 @Component({
@@ -64,27 +60,35 @@ export default class CatalogoPage {
   readonly disponibles = input(false, { transform: (v: unknown) => v === 'true' || v === true });
   readonly page = input(1, { transform: (v: unknown) => numberAttribute(v, 1) });
 
-  readonly libros = signal<Libro[]>(LIBROS_DE_PRUEBA); // en el módulo 51, un httpResource
   readonly compacta = signal(false);
   readonly filtros = computed<FiltrosLibro>(() => ({
     texto: this.search(),
     soloDisponibles: this.disponibles(),
   }));
 
-  readonly visibles = computed(() => {
-    const { texto, soloDisponibles } = this.filtros();
-    const termino = normalizar(texto.trim());
-    return this.libros().filter(
-      (l) =>
-        (!soloDisponibles || l.ejemplares_disponibles > 0) &&
-        (!termino || normalizar(`${l.titulo} ${l.autores.join(' ')}`).includes(termino)),
-    );
-  });
-  readonly total = computed(() => this.visibles().length);
-  protected readonly pagina_ = computed(() => {
-    const inicio = (this.page() - 1) * this.tamano;
-    return this.visibles().slice(inicio, inicio + this.tamano);
-  });
+  /**
+   * La URL cambia con cada tecla (replaceUrl), pero la consulta espera a que el usuario deje de
+   * escribir 300 ms. Solo cuando cambia el texto: un clic en "Siguiente" o en un filtro va al
+   * instante.
+   */
+  private readonly consulta = debounced(
+    computed(() => ({
+      search: this.search(),
+      disponible: this.disponibles(),
+      page: this.page(),
+      page_size: this.tamano,
+    })),
+    (nueva, anterior) =>
+      'value' in anterior && nueva.search !== anterior.value.search ? esperar(300) : undefined,
+  );
+
+  /** Filtrar y paginar lo hace el servidor: la URL → la consulta → el recurso. */
+  protected readonly resultado = inject(CatalogoApi).librosResource(this.consulta.value);
+  // ⚠️ value() LANZA si el recurso está en error: siempre detrás de hasValue()
+  readonly visibles = computed(() =>
+    this.resultado.hasValue() ? this.resultado.value().results : [],
+  );
+  readonly total = computed(() => (this.resultado.hasValue() ? this.resultado.value().count : 0));
 
   /** Cambiar filtros = navegar. page: null la quita de la URL (vuelve a la 1). */
   cambiarFiltros(f: FiltrosLibro): void {
@@ -108,7 +112,7 @@ export default class CatalogoPage {
   }
 
   protected reservar(id: number): void {
-    const libro = this.libros().find((l) => l.id === id);
+    const libro = this.visibles().find((l) => l.id === id);
     if (libro) this.carrito.anadir(libro);
   }
 }

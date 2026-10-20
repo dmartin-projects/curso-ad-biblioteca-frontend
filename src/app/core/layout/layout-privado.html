@@ -8,8 +8,8 @@
       <a routerLink="/admin" routerLinkActive="activo">Administración</a>
     }
   </nav>
-  <span>{{ auth.usuario()?.nombre }}</span>
-  <button type="button" (click)="salir()">Salir</button>
+  <span class="usuario">{{ auth.usuario()?.nombre || auth.usuario()?.email }}</span>
+  <button type="button" (click)="auth.logout()">Salir</button>
 </header>
 <main><router-outlet /></main>
 <aside>
