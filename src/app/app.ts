@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { AuthStore } from './core/auth/auth-store';
 import { RouterOutlet } from '@angular/router';
+import { BuscadorAutores } from './core/autores/buscador-autores/buscador-autores';
+import { ListadoGastos } from './features/gastos/pages/listado-gastos/listado-gastos';
 import { Dashboard } from './shared/components/dashboard/dashboard';
 import { ConfigWidget } from './shared/components/dashboard/widgets';
 import { ResumenCarrito } from './core/carrito/resumen-carrito/resumen-carrito';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ResumenCarrito, Dashboard],
+  imports: [RouterOutlet, BuscadorAutores, ListadoGastos, ResumenCarrito, Dashboard],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

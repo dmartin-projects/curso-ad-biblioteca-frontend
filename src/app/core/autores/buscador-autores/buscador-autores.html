@@ -1,0 +1,9 @@
+<input type="search" placeholder="Autor…" (input)="termino$.next($any($event.target).value)" />
+@if (error()) {
+  <p role="alert">{{ error() }}</p>
+}
+<ul>
+  @for (a of resultados$ | async; track a) {
+    <li>{{ a }}</li>
+  }
+</ul>

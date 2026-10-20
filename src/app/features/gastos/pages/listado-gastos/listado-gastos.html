@@ -1,0 +1,6 @@
+<button type="button" (click)="clicGuardar$.next()">Guardar gasto</button>
+<ul>
+  @for (g of gastos$ | async; track g.id) {
+    <li>{{ g.concepto }}</li>
+  }
+</ul>
