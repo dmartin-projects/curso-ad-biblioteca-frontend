@@ -1,20 +1,62 @@
-<header>
-  <strong>Biblioteca</strong>
-  <nav>
-    <a routerLink="/catalogo" routerLinkActive="activo">Catálogo</a>
-    <a routerLink="/prestamos" routerLinkActive="activo">Mis préstamos</a>
-    <a routerLink="/gastos" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }"
-      >Gastos</a
-    >
-    @if (auth.tieneRol('bibliotecario')) {
-      <a routerLink="/admin" routerLinkActive="activo">Administración</a>
-    }
-  </nav>
-  <span class="usuario">{{ auth.usuario()?.nombre || auth.usuario()?.email }}</span>
-  <button type="button" (click)="auth.logout()">Salir</button>
-</header>
-<main><router-outlet /></main>
-<aside>
-  <app-resumen-carrito />
-  <app-buscador-autores />
-</aside>
+<mat-sidenav-container class="h-dvh">
+  <mat-sidenav #menu [mode]="esMovil() ? 'over' : 'side'" [opened]="!esMovil()" class="w-64 p-2">
+    <mat-nav-list aria-label="Principal">
+      <a
+        mat-list-item
+        routerLink="/catalogo"
+        routerLinkActive="activo"
+        (click)="esMovil() && menu.close()"
+        >Catálogo</a
+      >
+      <a
+        mat-list-item
+        routerLink="/prestamos"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="esMovil() && menu.close()"
+        >Mis préstamos</a
+      >
+      <a
+        mat-list-item
+        routerLink="/gastos"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="esMovil() && menu.close()"
+        >Gastos</a
+      >
+      @if (auth.tieneRol('bibliotecario')) {
+        <a
+          mat-list-item
+          routerLink="/admin"
+          routerLinkActive="activo"
+          (click)="esMovil() && menu.close()"
+          >Administración</a
+        >
+      }
+    </mat-nav-list>
+    <aside class="mt-4 flex flex-col gap-4 border-t border-borde pt-4 text-sm">
+      <app-resumen-carrito />
+      <app-buscador-autores />
+    </aside>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="flex flex-col">
+    <header class="sticky top-0 z-10">
+      <mat-toolbar class="gap-2">
+        @if (esMovil()) {
+          <button matIconButton type="button" aria-label="Abrir el menú" (click)="menu.toggle()">
+            ☰
+          </button>
+        }
+        <strong class="flex-1">Biblioteca</strong>
+        <span class="usuario hidden text-sm sm:inline">{{
+          auth.usuario()?.nombre || auth.usuario()?.email
+        }}</span>
+        <button matButton type="button" (click)="auth.logout()">Salir</button>
+      </mat-toolbar>
+    </header>
+    <main class="mx-auto w-full max-w-6xl flex-1 p-4">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

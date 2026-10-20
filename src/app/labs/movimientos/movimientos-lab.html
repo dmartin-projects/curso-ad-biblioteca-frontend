@@ -8,7 +8,7 @@
         <div class="fila">
           <span>{{ m.fecha | date }}</span
           ><span>{{ m.concepto }}</span>
-          <span [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
+          <span class="importe" [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
         </div>
       }
     </div>
@@ -18,7 +18,7 @@
       <div *cdkVirtualFor="let m of movimientos; trackBy: porId" class="fila">
         <span>{{ m.fecha | date }}</span
         ><span>{{ m.concepto }}</span>
-        <span [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
+        <span class="importe" [class.negativo]="m.importe < 0">{{ m.importe | currency }}</span>
       </div>
     </cdk-virtual-scroll-viewport>
   }

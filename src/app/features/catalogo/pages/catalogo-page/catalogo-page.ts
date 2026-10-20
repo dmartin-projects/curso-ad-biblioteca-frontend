@@ -41,7 +41,6 @@ const esperar = (ms: number) => new Promise<void>((listo) => setTimeout(listo, m
     RouterLink,
   ],
   templateUrl: './catalogo-page.html',
-  styleUrl: './catalogo-page.scss',
 })
 export default class CatalogoPage {
   private readonly router = inject(Router);

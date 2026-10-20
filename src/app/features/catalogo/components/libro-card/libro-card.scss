@@ -1,31 +1,59 @@
 :host {
   display: block;
-  padding: var(--card-padding, 1rem); // el padre lo personaliza sin ::ng-deep
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  container-type: inline-size; /* la tarjeta responde a SU ancho, no al de la ventana */
+  padding: var(--card-padding, var(--espacio-4));
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--radio);
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: var(--sombra);
 }
 /* agotada: borde discontinuo y otro fondo. Con opacity, el texto bajaría de 4,5:1 de contraste;
    y la etiqueta "Agotado" lo dice también con palabras, no solo con color */
 :host(.agotado) {
   border-style: dashed;
-  background: #f3f3f3;
+  background: var(--mat-sys-surface-container-highest);
+  box-shadow: none;
 }
 h3 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 var(--espacio-1);
 }
 .autores {
-  color: #555;
+  color: var(--mat-sys-on-surface-variant);
 }
 .etiqueta {
   display: inline-block;
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: #e8f0fe;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
   font-size: 0.85rem;
 }
 .etiqueta--agotado {
-  background: #fde8e8;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
 }
 .etiqueta--ultimo {
-  background: #fff4d6;
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+/* En una columna ancha (≥ 24rem de contenido), datos a la izquierda y acciones a la derecha.
+   ⚠️ Una container query NO puede cambiar el propio contenedor (:host): solo a sus descendientes */
+.acciones {
+  display: flex;
+  gap: var(--espacio-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+@container (min-width: 24rem) {
+  .contenido {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--espacio-4);
+    align-items: center;
+  }
+  .acciones {
+    flex-direction: column;
+    align-items: flex-end;
+  }
 }

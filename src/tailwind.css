@@ -1,0 +1,15 @@
+/* Tailwind v4 (módulo 56): en un .css propio, nunca dentro de Sass */
+@import 'tailwindcss';
+
+/* Los colores de Tailwind salen del tema de Material: bg-primario, text-texto… */
+@theme {
+  --color-primario: var(--mat-sys-primary);
+  --color-sobre-primario: var(--mat-sys-on-primary);
+  --color-superficie: var(--mat-sys-surface);
+  --color-superficie-alta: var(--mat-sys-surface-container);
+  --color-texto: var(--mat-sys-on-surface);
+  --color-texto-suave: var(--mat-sys-on-surface-variant);
+  --color-borde: var(--mat-sys-outline-variant);
+  --color-ingreso: light-dark(#1b7f3b, #6fdc8c);
+  --color-gasto: light-dark(#b3261e, #ffb4ab);
+}

@@ -9,6 +9,11 @@
   grid-template-columns: 8rem 1fr 7rem;
   align-items: center;
 }
-.negativo {
-  color: var(--mat-sys-error);
+.importe {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ingreso); /* tokens de styles.scss con light-dark() */
+}
+.importe.negativo {
+  color: var(--color-gasto);
 }

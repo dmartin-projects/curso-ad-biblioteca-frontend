@@ -92,7 +92,7 @@ describe('Rutas de la biblioteca', () => {
     await estable();
     expect(router.url).toBe('/prestamos');
     expect(TestBed.inject(Title).getTitle()).toBe('Mis préstamos · Biblioteca');
-    expect(el().querySelector('header nav')?.textContent).toContain('Catálogo');
+    expect(el().querySelector('mat-nav-list')?.textContent).toContain('Catálogo');
   });
 
   it('credenciales malas: mensaje genérico y se queda en el login', async () => {

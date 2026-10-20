@@ -1,6 +1,7 @@
 .rejilla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1rem;
+  /* tantas columnas como quepan; min() evita el desbordamiento en pantallas de menos de 16rem */
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   --card-padding: 1.25rem; // personaliza LibroCard desde fuera
 }
