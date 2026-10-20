@@ -1,0 +1,29 @@
+<h2>Libros por género</h2>
+@if (datos(); as datos) {
+  <app-grafico
+    tipo="doughnut"
+    [datos]="datos"
+    etiqueta="Libros del catálogo por género"
+    class="h-72"
+  />
+  <!-- un <canvas> no dice nada a un lector de pantalla: los mismos datos, en tabla -->
+  <details>
+    <summary>Ver los datos</summary>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Género</th>
+          <th scope="col">Libros</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of filas(); track f.genero) {
+          <tr>
+            <td>{{ f.genero }}</td>
+            <td>{{ f.libros }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </details>
+}

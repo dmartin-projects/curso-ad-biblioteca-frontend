@@ -20,3 +20,13 @@
     <li>{{ g.nombre }}</li>
   }
 </ul>
+<!-- el gráfico (y los ~60 kB de Chart.js) solo se descargan al llegar a él (@defer, módulo 57) -->
+@defer (on viewport) {
+  <app-grafico-generos [filas]="librosPorGenero()" />
+} @placeholder (minimum 300ms) {
+  <div class="esqueleto-grafico" style="height: 18rem"></div>
+} @loading (after 100ms; minimum 500ms) {
+  <p aria-busy="true">Cargando gráfico…</p>
+} @error {
+  <p>No se pudo cargar el gráfico.</p>
+}

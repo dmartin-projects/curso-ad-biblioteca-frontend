@@ -5,6 +5,7 @@ import {
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
+  isDevMode,
   PLATFORM_ID,
 } from '@angular/core';
 import {
@@ -29,6 +30,7 @@ import { APP_CONFIG } from './core/config';
 import { provideLocaleEs } from './core/locale';
 import { TituloConSufijo } from './core/titulo';
 import { PrecargaSeleccionada } from './core/precarga';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -65,5 +67,9 @@ export const appConfig: ApplicationConfig = {
       useValue: { apiUrl: environment.apiUrl, wsUrl: environment.wsUrl, paginaPorDefecto: 20 },
     },
     { provide: Almacenamiento, useClass: AlmacenamientoLocal },
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

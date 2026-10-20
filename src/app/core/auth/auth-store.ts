@@ -15,6 +15,7 @@ import {
 } from 'rxjs';
 import { Usuario } from '../api/tipos';
 import { CacheHttp } from '../http/cache';
+import { borrarDatosCacheados } from '../pwa/pwa';
 import { ErrorApi } from '../http/errores';
 import { SIN_AUTH, SIN_AVISO_ERROR } from '../http/contexto';
 import { conCerrojo } from './cerrojo';
@@ -158,6 +159,10 @@ export class AuthStore {
 
   private limpiar(): void {
     this.cache.limpiar(); // los datos de un usuario no deben verlos otro en el mismo navegador
+    // …ni los que guardó el service worker (módulo 61). Solo se llega aquí si la sesión ha terminado
+    // de verdad: si el refresh falla por la red (0, o el 504 del service worker), no se borra nada,
+    // y esos datos siguen ahí para verlos sin conexión
+    void borrarDatosCacheados();
     const habiaSesion = this._usuario() !== null;
     this._access.set(null);
     this._usuario.set(null);

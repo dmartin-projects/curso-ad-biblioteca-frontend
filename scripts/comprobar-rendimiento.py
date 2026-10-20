@@ -23,12 +23,14 @@ with sync_playwright() as p:
     pg.click(".boton-filtros"); pg.wait_for_selector("app-filtros-avanzados")
     print("1. Filtros avanzados: chunks descargados al pulsar →", js[antes:] or "ninguno (ya estaban, prefetch on idle)")
 
-    # @defer (on viewport): Chart.js solo cuando el gráfico aparece (laboratorio de fugas, /fugas)
-    pg.goto(f"{BASE}/fugas"); pg.wait_for_selector("#alternar-grafico")
+    # @defer (on viewport): Chart.js solo cuando el gráfico se acerca a la pantalla
+    pg.set_viewport_size({"width": 1280, "height": 300})  # pantalla baja: el gráfico queda "debajo del pliegue"
+    pg.click("mat-nav-list a:has-text('Administración')"); pg.wait_for_selector("app-panel-prestamos li")
     antes = len(js); pg.wait_for_timeout(1000)
-    print("2. Laboratorio cargado: ¿gráfico pintado?", pg.locator("app-grafico-gastos canvas").count(), "| JS nuevo sin mostrarlo:", len(js) - antes)
-    pg.click("#alternar-grafico"); pg.wait_for_selector("app-grafico-gastos canvas")
-    print("   al mostrarlo → canvas:", pg.locator("app-grafico-gastos canvas").count(), "| JS descargado:", js[antes:])
+    print("2. Admin cargado: ¿gráfico pintado?", pg.locator("app-grafico canvas").count(), "| JS nuevo sin bajar:", len(js) - antes)
+    pg.locator(".esqueleto-grafico").scroll_into_view_if_needed(); pg.wait_for_selector("app-grafico canvas")
+    pg.set_viewport_size({"width": 1280, "height": 600})
+    print("   al bajar → canvas:", pg.locator("app-grafico canvas").count(), "| JS descargado:", js[antes:])
 
     # AlVerse: scroll infinito con centinela
     pg.goto(f"{BASE}/prestamos/historial-simple"); pg.wait_for_selector(".fila")

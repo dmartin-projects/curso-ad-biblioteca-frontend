@@ -1,6 +1,12 @@
 .activo {
   background: var(--mat-sys-secondary-container);
 }
+.sin-conexion {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
 .saltar {
   position: absolute;
   inset-inline-start: 1rem;

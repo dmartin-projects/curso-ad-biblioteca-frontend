@@ -57,6 +57,12 @@
         <button matButton type="button" (click)="auth.logout()">Salir</button>
       </mat-toolbar>
     </header>
+    @if (!conexion.enLinea()) {
+      <!-- módulo 61 -->
+      <p class="sin-conexion" role="status">
+        Sin conexión: estás viendo los últimos datos guardados.
+      </p>
+    }
     <!-- tabindex="-1": se le puede dar el foco por código, pero Tab no se para en él -->
     <main id="principal" #principal tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 p-4">
       <router-outlet />

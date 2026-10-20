@@ -11,6 +11,7 @@ import { BuscadorAutores } from '../autores/buscador-autores/buscador-autores';
 import { ResumenCarrito } from '../carrito/resumen-carrito/resumen-carrito';
 import { AuthStore } from '../auth/auth-store';
 import { Avisos } from '../avisos/avisos';
+import { Conexion } from '../pwa/pwa';
 import { NotificacionesWs } from '../notificaciones/notificaciones-ws';
 
 /**
@@ -41,6 +42,7 @@ export default class LayoutPrivado {
   }
 
   protected readonly auth = inject(AuthStore);
+  protected readonly conexion = inject(Conexion);
   protected readonly esMovil = toSignal(
     inject(BreakpointObserver)
       .observe('(max-width: 768px)')
