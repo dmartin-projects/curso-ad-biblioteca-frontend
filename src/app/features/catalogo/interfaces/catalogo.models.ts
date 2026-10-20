@@ -1,9 +1,9 @@
 // features/catalogo/interfaces/catalogo.models.ts — desde el módulo 51, los tipos salen del esquema OpenAPI
-import type { LibroDetalle, LibroLista } from '../../../core/api/tipos';
+import type { Autor, LibroDetalle, LibroLista } from '../../../core/api/tipos';
 
 /** Un libro tal como llega en los listados (GET /api/v1/libros/). */
 export type Libro = LibroLista;
-export type { LibroDetalle };
+export type { Autor, LibroDetalle };
 
 export interface FiltrosLibro {
   texto: string;

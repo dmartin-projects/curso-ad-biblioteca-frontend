@@ -1,0 +1,27 @@
+fieldset {
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+  padding: 0;
+}
+.opcion {
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--color);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.opcion:has(input:checked) {
+  background: var(--color);
+  color: white;
+}
+.opcion:has(input:focus-visible) {
+  outline: 2px solid var(--mat-sys-primary, currentColor);
+  outline-offset: 2px;
+}
+/* el radio queda oculto a la vista pero sigue en el árbol de accesibilidad y recibe el foco */
+input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}

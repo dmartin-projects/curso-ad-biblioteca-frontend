@@ -49,9 +49,14 @@ async function app() {
   const http = TestBed.inject(HttpTestingController);
   const el = () => harness.fixture.nativeElement as HTMLElement;
   const estable = () => harness.fixture.whenStable();
+  const escribirEn = (selector: string, valor: string) => {
+    const input = el().querySelector<HTMLInputElement>(selector)!;
+    input.value = valor;
+    input.dispatchEvent(new Event('input')); // los formularios reactivos escuchan el evento input
+  };
   const rellenarLogin = () => {
-    el().querySelector<HTMLInputElement>('input[name=email]')!.value = 'ana@example.com';
-    el().querySelector<HTMLInputElement>('input[name=password]')!.value = 'clave';
+    escribirEn('input[type=email]', 'ana@example.com');
+    escribirEn('input[type=password]', 'clave');
   };
   const ir = async (url: string) => {
     await harness.navigateByUrl(url);
@@ -67,7 +72,18 @@ describe('Rutas de la biblioteca', () => {
     expect(router.url).toBe('/login?next=%2Fprestamos');
     expect(TestBed.inject(Title).getTitle()).toBe('Iniciar sesión · Biblioteca');
 
-    rellenarLogin(); // con los campos vacíos, `required` impide el submit (también en jsdom)
+    // con los campos vacíos, el formulario no se envía: marca el error y lleva ahí el foco
+    el().querySelector<HTMLButtonElement>('button[type=submit]')!.click();
+    await estable();
+    http.expectNone('/api/v1/auth/login/');
+    const email = el().querySelector<HTMLInputElement>('input[type=email]')!;
+    expect(email.getAttribute('aria-invalid')).toBe('true');
+    expect(document.getElementById(email.getAttribute('aria-describedby')!)?.textContent).toContain(
+      'Obligatorio',
+    );
+    expect(document.activeElement).toBe(email);
+
+    rellenarLogin();
     el().querySelector<HTMLButtonElement>('button[type=submit]')!.click();
     const login = http.expectOne('/api/v1/auth/login/');
     expect(login.request.body).toEqual({ email: 'ana@example.com', password: 'clave' });
@@ -146,7 +162,7 @@ describe('Rutas de la biblioteca', () => {
     const { router, el, ir, estable } = await app();
     iniciarSesionDePrueba(['catalogo.add_libro'], true);
     await ir('/catalogo/nuevo');
-    const titulo = el().querySelector<HTMLInputElement>('input[name=titulo]')!;
+    const titulo = el().querySelector<HTMLInputElement>('[name="libro.titulo"]')!;
     titulo.value = 'Dune';
     titulo.dispatchEvent(new Event('input', { bubbles: true }));
     await estable();

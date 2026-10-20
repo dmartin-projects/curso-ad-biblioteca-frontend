@@ -24,6 +24,7 @@
           [error]="errorSubida()"
           (archivo)="subirPortada($event)"
         />
+        <a [routerLink]="['/catalogo/libros', idNumerico(), 'editar']">Editar</a>
       }
       <a [routerLink]="['/catalogo/libros', idNumerico() + 1]">Siguiente libro →</a>
     }

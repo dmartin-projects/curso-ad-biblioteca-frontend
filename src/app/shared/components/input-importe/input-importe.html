@@ -1,0 +1,8 @@
+<input
+  inputmode="decimal"
+  [value]="texto()"
+  [disabled]="deshabilitado()"
+  (input)="cambiar($any($event.target).value)"
+  (blur)="alTocar()"
+/>
+€

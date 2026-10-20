@@ -1,8 +1,16 @@
-import { HttpClient, HttpEventType, HttpParams, httpResource } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpContext,
+  HttpEventType,
+  HttpParams,
+  httpResource,
+  HttpResourceRequest,
+} from '@angular/common/http';
 import { inject, Service, Signal } from '@angular/core';
 import { concat, filter, map, Observable, of, tap } from 'rxjs';
 import { LibroDetalle, LibroEscritura, LibroLista, Paginado } from '../../../core/api/tipos';
 import { APP_CONFIG } from '../../../core/config';
+import { SIN_AVISO_ERROR } from '../../../core/http/contexto';
 import { EstadoSubida } from '../interfaces/catalogo.models';
 
 export interface ConsultaLibros {
@@ -53,6 +61,18 @@ export class CatalogoApi {
     );
     const cacheado = this.vistos.get(id);
     return cacheado ? concat(of(cacheado), fresco$) : fresco$;
+  }
+
+  /**
+   * La petición que busca un ISBN, para comprobar duplicados con validateHttp (Signal Forms).
+   * Sin avisos globales si falla: es una comprobación en segundo plano.
+   */
+  comprobacionIsbn(isbn: string): HttpResourceRequest {
+    return {
+      url: `${this.base}/libros/`,
+      params: { search: isbn },
+      context: new HttpContext().set(SIN_AVISO_ERROR, true),
+    };
   }
 
   // ── Acciones: Observables ──

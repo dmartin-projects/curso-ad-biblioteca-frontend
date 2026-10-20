@@ -19,6 +19,11 @@ export const routes: Routes = [
         providers: [provideCatalogo({ tamanoPagina: 12 })], // compartido por las páginas del catálogo
         loadChildren: () => import('./features/catalogo/catalogo.routes'),
       },
+      {
+        path: 'gastos/nuevo', // formulario de gasto del módulo 53 (sin backend todavía)
+        title: 'Nuevo gasto',
+        loadComponent: () => import('./features/gastos/pages/nuevo-gasto/nuevo-gasto'),
+      },
       { path: 'prestamos', loadChildren: () => import('./features/prestamos/prestamos.routes') },
       {
         path: 'gastos',

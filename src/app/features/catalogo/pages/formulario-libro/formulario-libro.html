@@ -1,0 +1,101 @@
+<h1>{{ id() ? 'Editar libro' : 'Nuevo libro' }}</h1>
+<!-- cada campo: aria-invalid (está mal) y aria-describedby (por qué), que [formField] no pone -->
+<form [formRoot]="f" novalidate>
+  <label>
+    Título
+    <input
+      [formField]="f.titulo"
+      [attr.aria-invalid]="mostrarError(f.titulo)"
+      [attr.aria-describedby]="mostrarError(f.titulo) ? 'error-titulo' : null"
+    />
+  </label>
+  @if (mostrarError(f.titulo)) {
+    <p id="error-titulo" class="errores">
+      @for (e of f.titulo().errors(); track e) {
+        <small class="error">{{ e.message }}</small>
+      }
+    </p>
+  }
+
+  <label>
+    ISBN
+    <input
+      inputmode="numeric"
+      [formField]="f.isbn"
+      [attr.aria-invalid]="mostrarError(f.isbn)"
+      [attr.aria-describedby]="mostrarError(f.isbn) ? 'error-isbn' : null"
+    />
+    @if (f.isbn().pending()) {
+      <small aria-live="polite">Comprobando…</small>
+    }
+  </label>
+  @if (mostrarError(f.isbn)) {
+    <p id="error-isbn" class="errores">
+      @for (e of f.isbn().errors(); track e) {
+        <small class="error">{{ e.message }}</small>
+      }
+    </p>
+  }
+
+  <label>
+    Páginas
+    <input
+      type="number"
+      [formField]="f.paginas"
+      [attr.aria-invalid]="mostrarError(f.paginas)"
+      [attr.aria-describedby]="mostrarError(f.paginas) ? 'error-paginas' : null"
+    />
+  </label>
+  @if (mostrarError(f.paginas)) {
+    <p id="error-paginas" class="errores">
+      @for (e of f.paginas().errors(); track e) {
+        <small class="error">{{ e.message }}</small>
+      }
+    </p>
+  }
+
+  <label>
+    Publicado
+    <input
+      type="date"
+      [formField]="f.publicado"
+      [attr.aria-invalid]="mostrarError(f.publicado)"
+      [attr.aria-describedby]="mostrarError(f.publicado) ? 'error-publicado' : null"
+    />
+  </label>
+  @if (mostrarError(f.publicado)) {
+    <p id="error-publicado" class="errores">
+      @for (e of f.publicado().errors(); track e) {
+        <small class="error">{{ e.message }}</small>
+      }
+    </p>
+  }
+
+  <!-- el aria-invalid lo pone el propio selector en su <input> -->
+  <fieldset [attr.aria-describedby]="mostrarError(f.autores_ids) ? 'error-autores' : null">
+    <legend>Autores</legend>
+    <app-selector-autores
+      [formField]="f.autores_ids"
+      [iniciales]="autoresIniciales()"
+      [sugerencias]="sugerencias()"
+      (buscar)="terminoAutor.set($event)"
+    />
+  </fieldset>
+  @if (mostrarError(f.autores_ids)) {
+    <p id="error-autores" class="errores">
+      @for (e of f.autores_ids().errors(); track e) {
+        <small class="error">{{ e.message }}</small>
+      }
+    </p>
+  }
+
+  <label>Sinopsis <textarea [formField]="f.sinopsis"></textarea></label>
+
+  @for (e of f().errors(); track e) {
+    <p role="alert" class="error">{{ e.message }}</p>
+  }
+  <button type="submit" [disabled]="f().submitting()">
+    {{ f().submitting() ? 'Guardando…' : 'Guardar' }}
+  </button>
+  <a [routerLink]="id() ? ['/catalogo/libros', id()] : '/catalogo'">Cancelar</a>
+</form>

@@ -1,0 +1,35 @@
+<ul class="elegidos">
+  @for (a of elegidos(); track a.id) {
+    <li>
+      {{ a.nombre }} {{ a.apellidos }}
+      <button
+        type="button"
+        [attr.aria-label]="'Quitar ' + a.nombre"
+        [disabled]="disabled()"
+        (click)="quitar(a.id)"
+      >
+        ✕
+      </button>
+    </li>
+  }
+</ul>
+<input
+  #campo
+  type="search"
+  class="buscar-autor"
+  placeholder="Buscar autor…"
+  [value]="termino()"
+  [disabled]="disabled()"
+  [attr.aria-invalid]="invalid()"
+  (input)="escribir(campo.value)"
+  (blur)="touch.emit()"
+/>
+@if (sugerencias().length) {
+  <ul class="sugerencias">
+    @for (a of sugerencias(); track a.id) {
+      <li>
+        <button type="button" (click)="elegir(a)">{{ a.nombre }} {{ a.apellidos }}</button>
+      </li>
+    }
+  </ul>
+}

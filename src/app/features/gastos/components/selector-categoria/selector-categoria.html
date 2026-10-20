@@ -1,0 +1,17 @@
+<fieldset [attr.aria-invalid]="invalid()">
+  <legend>Categoría</legend>
+  @for (c of categorias(); track c.id) {
+    <label class="opcion" [style.--color]="c.color">
+      <input
+        type="radio"
+        [name]="nombre"
+        [value]="c.id"
+        [checked]="c.id === value()"
+        [disabled]="disabled()"
+        (change)="value.set(c.id)"
+        (blur)="touch.emit()"
+      />
+      {{ c.nombre }}
+    </label>
+  }
+</fieldset>

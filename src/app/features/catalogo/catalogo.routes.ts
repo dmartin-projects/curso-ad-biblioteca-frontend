@@ -12,7 +12,13 @@ export default [
     path: 'nuevo',
     title: 'Nuevo libro',
     canDeactivate: [cambiosSinGuardarGuard],
-    loadComponent: () => import('./pages/alta-libro/alta-libro'),
+    loadComponent: () => import('./pages/formulario-libro/formulario-libro'),
+  },
+  {
+    path: 'libros/:id/editar',
+    title: 'Editar libro',
+    canDeactivate: [cambiosSinGuardarGuard],
+    loadComponent: () => import('./pages/formulario-libro/formulario-libro'),
   },
   {
     path: 'libros/:id',

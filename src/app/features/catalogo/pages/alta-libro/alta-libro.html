@@ -1,7 +1,0 @@
-<h1>Nuevo libro</h1>
-<form (submit)="guardar($event)" (input)="sucio.set(true)">
-  <label>Título <input name="titulo" appAutofocus /></label>
-  <label>ISBN <input name="isbn" /></label>
-  <button type="submit" appRequierePermiso="catalogo.add_libro">Guardar</button>
-  <button type="button" (click)="cancelar()">Cancelar</button>
-</form>
