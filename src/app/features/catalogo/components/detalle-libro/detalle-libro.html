@@ -2,18 +2,40 @@
   <h1 tarjeta-titulo [style.view-transition-name]="'titulo-' + libro().id">
     {{ libro().titulo }}
   </h1>
-  <app-pestanas>
-    <app-pestana titulo="Datos">
-      <p class="autores">{{ autores() }}</p>
-      <p>ISBN {{ libro().isbn }} · {{ libro().publicado | date: 'yyyy' }}</p>
-    </app-pestana>
-    <app-pestana titulo="Sinopsis">
-      <p>{{ libro().sinopsis || 'Sin sinopsis.' }}</p>
-      @if (libro().paginas) {
-        <p>{{ libro().paginas }} páginas</p>
+  <!-- módulo 59: @angular/aria pone roles, aria-selected, aria-controls, flechas, Inicio/Fin y
+       un solo Tab para la lista (roving tabindex). Nosotros, el HTML y el aspecto (Tailwind). -->
+  <div ngTabs>
+    <ul
+      ngTabList
+      [(selectedTab)]="pestana"
+      aria-label="Información del libro"
+      class="m-0 flex list-none gap-1 border-b border-borde p-0"
+    >
+      @for (p of pestanas; track p.valor) {
+        <li
+          ngTab
+          [value]="p.valor"
+          class="cursor-pointer rounded-t-lg px-4 py-2 aria-selected:bg-primario aria-selected:text-sobre-primario focus-visible:outline-2 focus-visible:outline-primario"
+        >
+          {{ p.titulo }}
+        </li>
       }
-    </app-pestana>
-  </app-pestanas>
+    </ul>
+    <div ngTabPanel value="datos" class="py-3">
+      <ng-template ngTabContent>
+        <p class="autores">{{ autores() }}</p>
+        <p>ISBN {{ libro().isbn }} · {{ libro().publicado | date: 'yyyy' }}</p>
+      </ng-template>
+    </div>
+    <div ngTabPanel value="sinopsis" class="py-3">
+      <ng-template ngTabContent>
+        <p>{{ libro().sinopsis || 'Sin sinopsis.' }}</p>
+        @if (libro().paginas) {
+          <p>{{ libro().paginas }} páginas</p>
+        }
+      </ng-template>
+    </div>
+  </div>
   <div tarjeta-acciones>
     <button type="button" (click)="reservar.emit(libro().id)">Reservar</button>
   </div>

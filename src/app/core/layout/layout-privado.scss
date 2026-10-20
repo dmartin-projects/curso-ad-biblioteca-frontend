@@ -1,3 +1,18 @@
 .activo {
   background: var(--mat-sys-secondary-container);
 }
+.saltar {
+  position: absolute;
+  inset-inline-start: 1rem;
+  inset-block-start: -4rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+.saltar:focus {
+  inset-block-start: 1rem;
+}
+main:focus {
+  outline: none; /* el foco programático no necesita anillo; el de teclado sí lo tienen los controles */
+}

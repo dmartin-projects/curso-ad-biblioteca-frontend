@@ -1,8 +1,9 @@
-<fieldset [attr.aria-invalid]="invalid()">
+<fieldset [attr.aria-invalid]="invalid()" [attr.aria-describedby]="descripcion() || null">
   <legend>Categoría</legend>
   @for (c of categorias(); track c.id) {
     <label class="opcion" [style.--color]="c.color">
       <input
+        #radio
         type="radio"
         [name]="nombre"
         [value]="c.id"

@@ -1,0 +1,16 @@
+.panel-filtros {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+/* @starting-style: desde dónde entra (el estado "antes de existir") */
+.entrando {
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.saliendo {
+  opacity: 0;
+  transform: translateY(-8px);
+}

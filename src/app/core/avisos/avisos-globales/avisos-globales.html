@@ -5,7 +5,8 @@
     <div role="alert">
       <ul>
         @for (a of errores(); track a.id) {
-          <li class="aviso aviso--error">
+          <!-- módulo 59: Angular pone la clase al entrar y, al salir, espera a que acabe su animación -->
+          <li class="aviso aviso--error" animate.enter="aviso-entra" animate.leave="aviso-sale">
             <span>
               {{ a.texto }}
               @if (a.ref) {
@@ -21,7 +22,11 @@
   <div role="status">
     <ul>
       @for (a of otros(); track a.id) {
-        <li [class]="'aviso aviso--' + a.tipo">
+        <li
+          [class]="'aviso aviso--' + a.tipo"
+          animate.enter="aviso-entra"
+          animate.leave="aviso-sale"
+        >
           {{ a.texto }}
           <button type="button" aria-label="Cerrar aviso" (click)="avisos.cerrar(a.id)">×</button>
         </li>

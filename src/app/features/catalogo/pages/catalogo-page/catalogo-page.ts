@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   debounced,
+  effect,
   inject,
   injectAsync,
   input,
@@ -9,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { RequierePermiso } from '../../../../core/auth/permisos/requiere-permiso';
 import { SiPermiso } from '../../../../core/auth/permisos/si-permiso';
 import { BotonMenu } from '../../../../shared/components/boton-menu/boton-menu';
@@ -46,6 +48,7 @@ const esperar = (ms: number) => new Promise<void>((listo) => setTimeout(listo, m
     FiltrosAvanzados,
   ],
   templateUrl: './catalogo-page.html',
+  styleUrl: './catalogo-page.scss',
 })
 export default class CatalogoPage {
   private readonly router = inject(Router);
@@ -72,6 +75,7 @@ export default class CatalogoPage {
   readonly publicado_hasta = input<string>();
 
   readonly compacta = signal(false);
+  protected readonly filtrosAbiertos = signal(false);
   readonly filtros = computed<FiltrosLibro>(() => ({
     texto: this.search(),
     soloDisponibles: this.disponibles(),
@@ -103,6 +107,22 @@ export default class CatalogoPage {
     this.resultado.hasValue() ? this.resultado.value().results : [],
   );
   readonly total = computed(() => (this.resultado.hasValue() ? this.resultado.value().count : 0));
+
+  constructor() {
+    // módulo 59: un lector de pantalla no "ve" que la lista ha cambiado al filtrar: se lo decimos.
+    // Al llegar a la página no: el lector ya está leyendo la página nueva
+    const anunciador = inject(LiveAnnouncer);
+    let primeraCarga = true;
+    effect(() => {
+      if (this.resultado.isLoading() || !this.resultado.hasValue()) return;
+      const n = this.resultado.value().count;
+      if (primeraCarga) {
+        primeraCarga = false;
+        return;
+      }
+      anunciador.announce(n === 1 ? '1 libro encontrado' : `${n} libros encontrados`, 'polite');
+    });
+  }
 
   /** Cambiar filtros = navegar. page: null la quita de la URL (vuelve a la 1). */
   cambiarFiltros(f: FiltrosLibro): void {

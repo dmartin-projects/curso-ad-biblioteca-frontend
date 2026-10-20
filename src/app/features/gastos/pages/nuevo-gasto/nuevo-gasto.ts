@@ -5,6 +5,7 @@ import {
   form,
   FormField,
   FormRoot,
+  FieldTree,
   min,
   required,
   validate,
@@ -69,6 +70,9 @@ export default class NuevoGasto {
     },
     {
       submission: {
+        // módulo 59: al enviar con errores, el foco va al PRIMER campo inválido (en orden del DOM).
+        // Sin esto, quien usa lector de pantalla pulsa "Guardar"… y no pasa nada audible.
+        onInvalid: (campo) => campo().errorSummary()[0]?.fieldTree().focusBoundControl(),
         action: async () => {
           // aquí iría el POST a la API de gastos (proyecto final); de momento, un aviso
           const importe = formatCurrency(this.total(), this.locale, '€', 'EUR');
@@ -82,6 +86,10 @@ export default class NuevoGasto {
   readonly total = computed(() =>
     this.modelo().lineas.reduce((s, l) => s + (l.cantidad ?? 0) * (l.precio ?? 0), 0),
   );
+
+  protected mostrarError(campo: FieldTree<unknown>): boolean {
+    return campo().touched() && campo().invalid();
+  }
 
   anadirLinea(): void {
     this.modelo.update((g) => ({ ...g, lineas: [...g.lineas, lineaVacia()] }));

@@ -1,0 +1,58 @@
+.avisos {
+  position: fixed;
+  inset-block-end: 1rem;
+  inset-inline-end: 1rem;
+  z-index: 1000;
+  display: grid;
+  gap: 0.5rem;
+}
+.avisos ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ref {
+  display: block;
+  opacity: 0.85;
+}
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  background: var(--mat-sys-inverse-surface);
+  color: var(--mat-sys-inverse-on-surface);
+}
+/* no solo color: el tipo también se distingue por el borde y por el texto del aviso */
+.aviso--error {
+  border-inline-start: 6px solid var(--mat-sys-error);
+}
+.aviso--exito {
+  border-inline-start: 6px solid var(--color-ingreso);
+}
+.aviso button {
+  all: unset;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  font-size: 1.25rem;
+}
+.aviso button:focus-visible {
+  outline: 2px solid currentColor;
+}
+/* solo transform y opacity: no recalculan el layout */
+@keyframes aviso-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.aviso-entra {
+  animation: aviso-aparecer 200ms ease-out;
+}
+.aviso-sale {
+  animation: aviso-aparecer 150ms ease-in reverse forwards;
+}

@@ -9,12 +9,31 @@
 </app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="cambiarFiltros($event)" />
 <!-- módulo 57: el panel se descarga al pulsar el botón… o antes, cuando el navegador esté ocioso -->
-<button #botonFiltros type="button" class="boton-filtros">Filtros avanzados</button>
+<button
+  #botonFiltros
+  type="button"
+  class="boton-filtros"
+  [attr.aria-expanded]="filtrosAbiertos()"
+  aria-controls="filtros-avanzados"
+  (click)="filtrosAbiertos.set(!filtrosAbiertos())"
+>
+  Filtros avanzados
+</button>
 @defer (on interaction(botonFiltros); prefetch on idle) {
-  <app-filtros-avanzados
-    [rango]="{ desde: publicado_desde() ?? null, hasta: publicado_hasta() ?? null }"
-    (cambio)="cambiarRango($event)"
-  />
+  <!-- módulo 59: el panel entra deslizándose y, al cerrarlo, Angular espera a que salga -->
+  @if (filtrosAbiertos()) {
+    <div
+      id="filtros-avanzados"
+      class="panel-filtros"
+      animate.enter="entrando"
+      animate.leave="saliendo"
+    >
+      <app-filtros-avanzados
+        [rango]="{ desde: publicado_desde() ?? null, hasta: publicado_hasta() ?? null }"
+        (cambio)="cambiarRango($event)"
+      />
+    </div>
+  }
 } @placeholder {
   <span></span>
 }
@@ -35,7 +54,8 @@
 }
 <!-- UNA línea de estado de altura fija: un "Cargando…" que aparece y desaparece encima de la
      rejilla la empujaría entera (CLS) -->
-<p class="contador" aria-live="polite" [attr.aria-busy]="resultado.isLoading()">
+<!-- módulo 59: lo anuncia LiveAnnouncer (abajo); con aria-live aquí también, se oiría dos veces -->
+<p class="contador">
   {{ resultado.isLoading() && !resultado.hasValue() ? 'Cargando…' : total() + ' libros' }}
 </p>
 <button type="button" class="exportar" (click)="exportar()">Exportar esta página</button>

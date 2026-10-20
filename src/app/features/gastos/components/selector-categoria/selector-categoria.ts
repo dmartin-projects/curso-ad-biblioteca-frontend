@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, ElementRef, input, model, output, viewChildren } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 
 export interface Categoria {
@@ -22,10 +22,18 @@ export interface Categoria {
 export class SelectorCategoria implements FormValueControl<number | null> {
   private static siguiente = 0;
   protected readonly nombre = `categoria-${SelectorCategoria.siguiente++}`; // un name por grupo
+  private readonly radios = viewChildren<ElementRef<HTMLInputElement>>('radio');
 
   readonly value = model<number | null>(null); // obligatorio: valor en ambos sentidos
   readonly disabled = input(false); // opcionales: el formulario los rellena…
   readonly invalid = input(false);
   readonly touch = output<void>(); // …y este avisa de que el usuario lo ha "tocado"
   readonly categorias = input.required<Categoria[]>();
+  readonly descripcion = input<string>(); // id del mensaje de error (aria-describedby)
+
+  /** focusBoundControl() del formulario llama a este método (p. ej., al enviar con errores). */
+  focus(): void {
+    const radios = this.radios().map((r) => r.nativeElement);
+    (radios.find((r) => r.checked) ?? radios[0])?.focus();
+  }
 }

@@ -1,31 +1,53 @@
 <h1>Nuevo gasto</h1>
 <form [formRoot]="f" novalidate>
-  <label>Fecha <input type="date" [formField]="f.fecha" /></label>
-  <label>Comercio <input [formField]="f.comercio" /></label>
-  @if (f.comercio().touched() && f.comercio().invalid()) {
-    <small class="error">El comercio es obligatorio</small>
+  <!-- módulo 59: cada error, enlazado a su campo (aria-describedby) y marcado (aria-invalid) -->
+  <label>
+    Fecha
+    <input type="date" [formField]="f.fecha" [attr.aria-invalid]="mostrarError(f.fecha)" />
+  </label>
+  <label>
+    Comercio
+    <input
+      [formField]="f.comercio"
+      [attr.aria-invalid]="mostrarError(f.comercio)"
+      [attr.aria-describedby]="mostrarError(f.comercio) ? 'error-comercio' : null"
+    />
+  </label>
+  @if (mostrarError(f.comercio)) {
+    <small id="error-comercio" class="error">El comercio es obligatorio</small>
   }
-  <app-selector-categoria [formField]="f.categoria" [categorias]="categorias" />
-  @if (f.categoria().touched() && f.categoria().invalid()) {
-    <small class="error">Elige una categoría</small>
+  <app-selector-categoria
+    [formField]="f.categoria"
+    [categorias]="categorias"
+    [descripcion]="mostrarError(f.categoria) ? 'error-categoria' : undefined"
+  />
+  @if (mostrarError(f.categoria)) {
+    <small id="error-categoria" class="error">Elige una categoría</small>
   }
 
   @for (linea of f.lineas; track linea; let i = $index) {
     <fieldset class="linea">
       <legend>Línea {{ i + 1 }}</legend>
-      <label>Descripción <input [formField]="linea.descripcion" /></label>
+      <label>
+        Descripción
+        <input
+          [formField]="linea.descripcion"
+          [attr.aria-invalid]="mostrarError(linea.descripcion)"
+          [attr.aria-describedby]="mostrarError(linea.descripcion) ? 'error-linea-' + i : null"
+        />
+      </label>
       <label>Cantidad <input type="number" [formField]="linea.cantidad" /></label>
       <label>Precio <input type="number" step="0.01" [formField]="linea.precio" /></label>
       <button type="button" (click)="quitarLinea(i)" [attr.aria-label]="'Quitar línea ' + (i + 1)">
         ✕
       </button>
-      @if (linea.descripcion().touched() && linea.descripcion().invalid()) {
-        <small class="error">Descripción obligatoria</small>
+      @if (mostrarError(linea.descripcion)) {
+        <small [id]="'error-linea-' + i" class="error">Descripción obligatoria</small>
       }
     </fieldset>
   }
   @for (e of f.lineas().errors(); track e) {
-    <small class="error">{{ e.message }}</small>
+    <small class="error" role="alert">{{ e.message }}</small>
   }
   <button type="button" (click)="anadirLinea()">Añadir línea</button>
   <p class="total">Total: {{ total() | currency }}</p>

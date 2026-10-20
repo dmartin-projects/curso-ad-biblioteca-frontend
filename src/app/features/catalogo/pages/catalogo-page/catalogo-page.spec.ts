@@ -1,4 +1,5 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -64,6 +65,17 @@ describe('CatalogoPage (URL → consulta → API)', () => {
     expect(peticion.params.toString()).toBe('page=1&page_size=2'); // sin search= ni disponible=
     expect(titulos(el)).toEqual(['Dune', 'Cien años de soledad']);
     expect(el.querySelector('.contador')?.textContent?.trim()).toBe('5 libros');
+  });
+
+  it('anuncia el número de resultados al filtrar, no al llegar (módulo 59)', async () => {
+    const anunciar = vi.spyOn(LiveAnnouncer.prototype, 'announce').mockResolvedValue();
+    const { el, http, harness } = await abrir();
+    expect(anunciar).not.toHaveBeenCalled(); // al llegar, el lector ya está leyendo la página
+    escribir(el, 'dune');
+    await harness.fixture.whenStable();
+    await responder(http, '/api/v1/libros/', pagina([LIBROS_DE_PRUEBA[0], LIBROS_DE_PRUEBA[2]]));
+    await harness.fixture.whenStable();
+    expect(anunciar).toHaveBeenCalledWith('2 libros encontrados', 'polite');
   });
 
   it('Siguiente → ?page=2 → nueva petición; filtrar vuelve a la 1', async () => {

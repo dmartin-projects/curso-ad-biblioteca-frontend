@@ -4,6 +4,7 @@ import { Avisos } from '../avisos';
 @Component({
   selector: 'app-avisos',
   templateUrl: './avisos-globales.html',
+  styleUrl: './avisos-globales.scss',
 })
 export class AvisosGlobales {
   protected readonly avisos = inject(Avisos);
