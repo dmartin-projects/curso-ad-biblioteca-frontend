@@ -6,7 +6,6 @@
     <button type="button" (click)="entrarComoBibliotecario()">Entrar como bibliotecario</button>
   }
   <app-dashboard [widgets]="widgets" />
-  <app-catalogo-page />
+  <router-outlet />
   <aside><app-resumen-carrito /></aside>
 </main>
-<router-outlet />

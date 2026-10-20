@@ -4,11 +4,10 @@ import { RouterOutlet } from '@angular/router';
 import { Dashboard } from './shared/components/dashboard/dashboard';
 import { ConfigWidget } from './shared/components/dashboard/widgets';
 import { ResumenCarrito } from './core/carrito/resumen-carrito/resumen-carrito';
-import { CatalogoPage } from './features/catalogo/pages/catalogo-page/catalogo-page';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CatalogoPage, ResumenCarrito, Dashboard],
+  imports: [RouterOutlet, ResumenCarrito, Dashboard],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

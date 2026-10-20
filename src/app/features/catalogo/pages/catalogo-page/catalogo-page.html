@@ -18,6 +18,7 @@
 </app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="filtros.set($event)" />
 <p class="contador">{{ total() }} libros</p>
+<button type="button" class="exportar" (click)="exportar()">Exportar CSV</button>
 <button type="button" (click)="compacta.set(!compacta())">
   {{ compacta() ? 'Ver tarjetas' : 'Vista compacta' }}
 </button>

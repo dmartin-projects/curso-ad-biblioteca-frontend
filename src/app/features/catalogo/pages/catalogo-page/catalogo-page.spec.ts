@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { Almacenamiento, AlmacenamientoMemoria } from '../../../../core/almacenamiento';
+import { provideCatalogo } from '../../catalogo.config';
 import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
 import { CatalogoPage } from './catalogo-page';
 
@@ -18,7 +20,15 @@ const titulos = (el: HTMLElement) =>
   Array.from(el.querySelectorAll('app-libro-card h3')).map((h) => h.textContent);
 
 describe('CatalogoPage (contenedor)', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      providers: [
+        provideCatalogo({ tamanoPagina: 2 }),
+        // cada test tiene su TestBed y, con él, un almacenamiento vacío: nada de localStorage.clear()
+        { provide: Almacenamiento, useClass: AlmacenamientoMemoria },
+      ],
+    }),
+  );
 
   it('pagina de 2 en 2 y vuelve a la página 1 al filtrar (linkedSignal)', async () => {
     const { fixture, cmp, el } = await crear();
@@ -71,5 +81,30 @@ describe('CatalogoPage (contenedor)', () => {
     const { el } = await crear();
     el.querySelector<HTMLButtonElement>('app-libro-card button')!.click();
     expect(TestBed.inject(CarritoReservas).total()).toBe(1);
+  });
+
+  it('exporta a CSV cargando el exportador bajo demanda (injectAsync)', async () => {
+    const { cmp } = await crear();
+    let blob: Blob | undefined;
+    // jsdom no implementa createObjectURL: lo simulamos
+    URL.createObjectURL = (b: Blob) => ((blob = b), 'blob:x');
+    URL.revokeObjectURL = () => undefined;
+    // y tampoco navega: evitamos el aviso "Not implemented: navigation"
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    await cmp.exportar();
+    const texto = await blob!.text();
+    expect(texto).toContain('id;titulo;autores;disponibles');
+    expect(texto).toContain('"Dune";"Frank Herbert"');
+    expect(click).toHaveBeenCalledOnce();
+    click.mockRestore();
+  });
+
+  it('usa el tamaño de página por defecto si nadie llama a provideCatalogo()', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Almacenamiento, useClass: AlmacenamientoMemoria }],
+    });
+    const { el } = await crear();
+    expect(el.querySelectorAll('app-libro-card').length).toBe(5); // 20 por página
   });
 });

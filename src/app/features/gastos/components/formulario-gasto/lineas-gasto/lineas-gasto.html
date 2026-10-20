@@ -1,0 +1,8 @@
+<ul>
+  @for (l of estado.lineas(); track $index) {
+    <li>{{ l.concepto }}</li>
+  }
+</ul>
+<button type="button" (click)="estado.anadir({ concepto: 'Pan', importe: 1.5 })">
+  Añadir línea
+</button>

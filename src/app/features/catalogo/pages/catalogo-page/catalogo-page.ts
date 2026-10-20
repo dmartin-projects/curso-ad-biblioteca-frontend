@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  injectAsync,
+  linkedSignal,
+  signal,
+} from '@angular/core';
+import { Preferencias } from '../../../../core/preferencias';
 import { RequierePermiso } from '../../../../core/auth/permisos/requiere-permiso';
 import { SiPermiso } from '../../../../core/auth/permisos/si-permiso';
 import { BotonMenu } from '../../../../shared/components/boton-menu/boton-menu';
@@ -8,18 +17,9 @@ import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
 import { FILTROS_VACIOS, FiltrosLibro, Libro } from '../../interfaces/catalogo.models';
 import { LIBROS_DE_PRUEBA } from '../../services/datos-prueba';
+import { CONFIG_CATALOGO } from '../../catalogo.config';
 import { FiltrosLibros } from '../../components/filtros-libros/filtros-libros';
 import { ListaLibros } from '../../components/lista-libros/lista-libros';
-
-const CLAVE_FILTROS = 'catalogo.filtros';
-
-function leerFiltros(): FiltrosLibro {
-  try {
-    return { ...FILTROS_VACIOS, ...JSON.parse(localStorage.getItem(CLAVE_FILTROS) ?? '{}') };
-  } catch {
-    return FILTROS_VACIOS; // modo privado, JSON corrupto…
-  }
-}
 
 function normalizar(texto: string): string {
   return texto
@@ -45,11 +45,19 @@ function normalizar(texto: string): string {
 })
 export class CatalogoPage {
   private readonly carrito = inject(CarritoReservas);
-  protected readonly tamano = 2; // pequeño para ver la paginación con 5 libros de prueba
+  private readonly preferencias = inject(Preferencias);
+  private readonly config = inject(CONFIG_CATALOGO);
+  /** El chunk del exportador solo se descarga la primera vez que se pulsa "Exportar". */
+  private readonly exportador = injectAsync(() =>
+    import('../../services/exportador-csv').then((m) => m.ExportadorCsv),
+  );
+  protected readonly tamano = this.config.tamanoPagina;
   protected readonly porId = (libro: Libro) => libro.id;
 
   readonly libros = signal<Libro[]>(LIBROS_DE_PRUEBA); // en el módulo 51, un httpResource
-  readonly filtros = signal<FiltrosLibro>(leerFiltros());
+  readonly filtros = signal<FiltrosLibro>(
+    this.preferencias.leer(this.config.claveFiltros, FILTROS_VACIOS),
+  );
   readonly compacta = signal(false);
   readonly alta = signal(false);
   /** Vuelve a 1 cada vez que cambian los filtros (módulo 41). */
@@ -71,13 +79,12 @@ export class CatalogoPage {
   });
 
   constructor() {
-    effect(() => {
-      try {
-        localStorage.setItem(CLAVE_FILTROS, JSON.stringify(this.filtros()));
-      } catch {
-        /* sin almacenamiento: no pasa nada */
-      }
-    });
+    effect(() => this.preferencias.guardar(this.config.claveFiltros, this.filtros()));
+  }
+
+  async exportar(): Promise<void> {
+    const exportador = await this.exportador();
+    exportador.descargar(this.visibles());
   }
 
   protected reservar(id: number): void {
