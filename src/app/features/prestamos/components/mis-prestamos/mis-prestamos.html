@@ -1,6 +1,8 @@
+<h3>{{ prestamos().length | i18nPlural: plural }}</h3>
 <app-lista [items]="prestamos()" [trackBy]="porId">
   <ng-template #fila let-p>
-    {{ p.libro.titulo }} — devolver antes del {{ p.fecha_limite | date: 'dd/MM/yyyy' }}
+    {{ p.libro.titulo }} — devolver antes del {{ p.fecha_limite | date }}
+    <small>(vence {{ p.fecha_limite | tiempoRelativo: ahora() }})</small>
   </ng-template>
   <p vacio>No tienes préstamos.</p>
 </app-lista>

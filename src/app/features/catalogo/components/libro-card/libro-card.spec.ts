@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideLocaleEs } from '../../../../core/locale';
 import { Libro } from '../../interfaces/catalogo.models';
 import { LibroCard } from './libro-card';
 
@@ -19,11 +20,13 @@ async function crear(libro: Libro) {
 }
 
 describe('LibroCard', () => {
+  beforeEach(() => TestBed.configureTestingModule({ providers: provideLocaleEs() }));
+
   it('pinta título, autores y fecha', async () => {
     const el = (await crear(DUNE)).nativeElement as HTMLElement;
     expect(el.querySelector('h3')?.textContent).toBe('Dune');
     expect(el.querySelector('.autores')?.textContent).toBe('Frank Herbert, Brian Herbert');
-    expect(el.textContent).toContain('August 1, 1965'); // locale por defecto: en-US
+    expect(el.textContent).toContain('1 de agosto de 1965'); // locale 'es'
   });
 
   it('emite el id al reservar', async () => {

@@ -1,0 +1,10 @@
+<ul class="pipe">
+  @for (g of gastos() | filtrarPor: 'categoria' : categoria(); track g.id) {
+    <li>{{ g.id }}</li>
+  }
+</ul>
+<ul class="computed">
+  @for (g of filtrados(); track g.id) {
+    <li>{{ g.id }}</li>
+  }
+</ul>
