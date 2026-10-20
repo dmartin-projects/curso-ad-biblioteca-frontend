@@ -7,6 +7,7 @@ import {
   of,
   Subject,
   switchMap,
+  throwError,
   timer,
 } from 'rxjs';
 import { autocompletar, guardarSinDobles, listadoCombinado } from '../shared/utils/flujos';
@@ -42,11 +43,7 @@ describe('flujos con tiempo (fake timers)', () => {
           (t) => {
             llamadas.push(t);
             return t === 'error'
-              ? timer(10).pipe(
-                  map(() => {
-                    throw new Error('500');
-                  }),
-                )
+              ? throwError(() => new Error('500'))
               : of([t.toUpperCase()]).pipe(delay(100));
           },
           (e) => errores.push(e),
