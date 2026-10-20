@@ -75,7 +75,7 @@ try:
             print("   onerror inyectado → se ejecuta SIN CSP (ng serve):", sin.evaluate("window.__xss === 1"),
                   "| CON la CSP del build:", pg3.evaluate("window.__xss === 1"))
             print("   app con la CSP: libros en el catálogo y detalle OK | errores de consola:",
-                  [e for e in errores if "401" not in e and "WebSocket" not in e and "inline event handler" not in e] or "ninguno")
+                  [e for e in errores if "401" not in e and "429" not in e and "WebSocket" not in e and "inline event handler" not in e] or "ninguno")
         b.close()
 finally:
     api("PATCH", f"/libros/{libro}/", token, {"sinopsis": original})
