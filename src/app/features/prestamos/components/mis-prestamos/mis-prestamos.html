@@ -1,0 +1,6 @@
+<app-lista [items]="prestamos()" [trackBy]="porId">
+  <ng-template #fila let-p>
+    {{ p.libro.titulo }} — devolver antes del {{ p.fecha_limite | date: 'dd/MM/yyyy' }}
+  </ng-template>
+  <p vacio>No tienes préstamos.</p>
+</app-lista>

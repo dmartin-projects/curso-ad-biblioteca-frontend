@@ -1,0 +1,8 @@
+<div role="tablist">
+  @for (p of pestanas(); track p) {
+    <button role="tab" type="button" [attr.aria-selected]="p === activa()" (click)="activa.set(p)">
+      {{ p.titulo() }}
+    </button>
+  }
+</div>
+<ng-content />

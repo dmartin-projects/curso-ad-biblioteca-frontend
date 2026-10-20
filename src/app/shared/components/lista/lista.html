@@ -1,0 +1,13 @@
+<ul>
+  @for (item of items(); track trackBy()(item); let i = $index) {
+    <li>
+      <ng-container
+        [ngTemplateOutlet]="plantillaFila() ?? porDefecto"
+        [ngTemplateOutletContext]="{ $implicit: item, indice: i }"
+      />
+    </li>
+  } @empty {
+    <li class="vacio"><ng-content select="[vacio]">Sin elementos</ng-content></li>
+  }
+</ul>
+<ng-template #porDefecto let-item>{{ item }}</ng-template>

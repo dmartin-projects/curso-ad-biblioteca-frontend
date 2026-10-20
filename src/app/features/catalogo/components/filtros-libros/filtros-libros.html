@@ -1,0 +1,17 @@
+<input
+  #campo
+  type="search"
+  placeholder="Buscar (pulsa /)"
+  aria-label="Buscar por título o autor"
+  [value]="filtros().texto"
+  (input)="emitir({ texto: campo.value })"
+  (keydown.escape)="emitir({ texto: '' })"
+/>
+<label>
+  <input
+    type="checkbox"
+    [checked]="filtros().soloDisponibles"
+    (change)="emitir({ soloDisponibles: $any($event.target).checked })"
+  />
+  Solo disponibles
+</label>

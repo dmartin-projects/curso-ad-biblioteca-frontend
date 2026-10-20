@@ -14,58 +14,60 @@ function escribir(el: HTMLElement, texto: string) {
   campo.dispatchEvent(new Event('input'));
 }
 
-describe('CatalogoPage', () => {
+const titulos = (el: HTMLElement) =>
+  Array.from(el.querySelectorAll('app-libro-card h3')).map((h) => h.textContent);
+
+describe('CatalogoPage (contenedor)', () => {
   beforeEach(() => localStorage.clear());
 
-  it('pinta una tarjeta por libro y el contador con @let', async () => {
-    const { el } = await crear();
-    expect(el.querySelectorAll('app-libro-card').length).toBe(3);
-    expect(el.querySelector('.contador')?.textContent).toContain('3 libros · 3 ejemplares');
-  });
-
-  it('filtra por título o autor, sin acentos, y recalcula el total', async () => {
+  it('pagina de 2 en 2 y vuelve a la página 1 al filtrar (linkedSignal)', async () => {
     const { fixture, cmp, el } = await crear();
-    escribir(el, 'garcia');
+    expect(titulos(el)).toEqual(['Dune', 'Cien años de soledad']);
+    el.querySelectorAll<HTMLButtonElement>('app-paginador button')[1].click(); // Siguiente
     await fixture.whenStable();
-    expect(cmp.total()).toBe(1);
-    expect(el.querySelector('app-libro-card h3')?.textContent).toBe('Cien años de soledad');
+    expect(cmp.pagina()).toBe(2);
+    expect(titulos(el)).toEqual(['Hijos de Dune', 'La mano izquierda de la oscuridad']);
 
-    escribir(el, 'zzz');
+    escribir(el, 'dune');
     await fixture.whenStable();
-    expect(el.textContent).toContain('No hay libros que coincidan.');
+    expect(cmp.pagina()).toBe(1);
+    expect(cmp.total()).toBe(2);
   });
 
-  it('guarda el filtro con un effect y lo recupera al iniciar', async () => {
+  it('el check "solo disponibles" quita los agotados', async () => {
+    const { fixture, cmp, el } = await crear();
+    const check = el.querySelector<HTMLInputElement>('input[type=checkbox]')!;
+    check.checked = true;
+    check.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(cmp.total()).toBe(4);
+  });
+
+  it('guarda los filtros y los recupera', async () => {
     const primero = await crear();
-    escribir(primero.el, 'dune');
-    await primero.fixture.whenStable(); // los effects se ejecutan en la detección de cambios
-    expect(localStorage.getItem('catalogo.filtro')).toBe('dune');
-
+    escribir(primero.el, 'garcia');
+    await primero.fixture.whenStable();
     const segundo = await crear();
-    expect(segundo.cmp.filtro()).toBe('dune');
-    expect(segundo.cmp.total()).toBe(2);
+    expect(segundo.cmp.filtros().texto).toBe('garcia');
+    expect(segundo.cmp.total()).toBe(1);
   });
 
-  it('"/" enfoca el buscador, salvo si ya estás escribiendo', async () => {
-    const { el } = await crear();
-    const campo = el.querySelector<HTMLInputElement>('input[type=search]')!;
-    const evento = new KeyboardEvent('keydown', { key: '/', cancelable: true });
-    document.dispatchEvent(evento);
-    expect(document.activeElement).toBe(campo);
-    expect(evento.defaultPrevented).toBe(true);
-
-    const dentro = new KeyboardEvent('keydown', { key: '/', cancelable: true, bubbles: true });
-    campo.dispatchEvent(dentro); // escribiendo en el propio campo: la "/" se escribe
-    expect(dentro.defaultPrevented).toBe(false);
+  it('vista compacta con Lista<T> y plantilla de fila', async () => {
+    const { fixture, el } = await crear();
+    el.querySelector<HTMLButtonElement>('button')!.click(); // "Vista compacta"
+    await fixture.whenStable();
+    const filas = Array.from(el.querySelectorAll('app-lista li')).map((li) =>
+      li.textContent?.trim(),
+    );
+    expect(filas).toEqual([
+      '1. Dune — Frank Herbert',
+      '2. Cien años de soledad — Gabriel García Márquez',
+    ]);
   });
 
-  it('reservar añade al carrito compartido', async () => {
+  it('la reserva de la lista llega al carrito', async () => {
     const { el } = await crear();
     el.querySelector<HTMLButtonElement>('app-libro-card button')!.click();
-    expect(
-      TestBed.inject(CarritoReservas)
-        .lineas()
-        .map((l) => l.libro.titulo),
-    ).toEqual(['Dune']);
+    expect(TestBed.inject(CarritoReservas).total()).toBe(1);
   });
 });

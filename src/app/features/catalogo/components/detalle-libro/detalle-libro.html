@@ -1,0 +1,15 @@
+<app-tarjeta>
+  <h2 tarjeta-titulo>{{ libro().titulo }}</h2>
+  <app-pestanas>
+    <app-pestana titulo="Datos">
+      <p>{{ libro().autores.join(', ') }}</p>
+      <p>ISBN {{ libro().isbn }} · {{ libro().publicado | date: 'yyyy' }}</p>
+    </app-pestana>
+    <app-pestana titulo="Ejemplares">
+      <p>{{ libro().ejemplares_disponibles }} disponibles</p>
+    </app-pestana>
+  </app-pestanas>
+  <div tarjeta-acciones>
+    <button type="button" (click)="reservar.emit(libro().id)">Reservar</button>
+  </div>
+</app-tarjeta>

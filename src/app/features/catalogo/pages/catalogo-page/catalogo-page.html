@@ -1,26 +1,18 @@
-@let disponibles = visibles().reduce((suma, l) => suma + l.ejemplares_disponibles, 0);
+<h2>Catálogo</h2>
+<app-filtros-libros [filtros]="filtros()" (cambio)="filtros.set($event)" />
+<p class="contador">{{ total() }} libros</p>
+<button type="button" (click)="compacta.set(!compacta())">
+  {{ compacta() ? 'Ver tarjetas' : 'Vista compacta' }}
+</button>
 
-<header>
-  <h2>Catálogo</h2>
-  <input
-    #campo
-    type="search"
-    placeholder="Buscar (pulsa /)"
-    aria-label="Buscar por título o autor"
-    [value]="filtro()"
-    (input)="filtro.set(campo.value)"
-    (keydown.escape)="filtro.set('')"
-  />
-  <p class="contador">{{ total() }} libros · {{ disponibles }} ejemplares disponibles</p>
-  <app-panel-filtros>
-    <p>Aquí irán los filtros (módulo 53).</p>
-  </app-panel-filtros>
-</header>
-
-<section class="rejilla">
-  @for (libro of visibles(); track libro.id) {
-    <app-libro-card [libro]="libro" (reservar)="reservar($event)" />
-  } @empty {
-    <p>No hay libros que coincidan.</p>
-  }
-</section>
+@if (compacta()) {
+  <app-lista [items]="pagina_()" [trackBy]="porId">
+    <ng-template #fila let-libro let-i="indice">
+      <strong>{{ i + 1 }}. {{ libro.titulo }}</strong> — {{ libro.autores.join(', ') }}
+    </ng-template>
+    <p vacio>No hay libros con esos filtros.</p>
+  </app-lista>
+} @else {
+  <app-lista-libros [libros]="pagina_()" (reservar)="reservar($event)" />
+}
+<app-paginador [total]="total()" [tamano]="tamano" [(pagina)]="pagina" />

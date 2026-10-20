@@ -1,12 +1,20 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Dashboard } from './shared/components/dashboard/dashboard';
+import { ConfigWidget } from './shared/components/dashboard/widgets';
 import { ResumenCarrito } from './core/carrito/resumen-carrito/resumen-carrito';
 import { CatalogoPage } from './features/catalogo/pages/catalogo-page/catalogo-page';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CatalogoPage, ResumenCarrito],
+  imports: [RouterOutlet, CatalogoPage, ResumenCarrito, Dashboard],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  protected readonly widgets: ConfigWidget[] = [
+    { id: 1, tipo: 'total', config: { total: 5, etiqueta: 'libros en el catálogo' } },
+    { id: 2, tipo: 'aviso', config: { texto: '1 préstamo vence mañana' } },
+    { id: 3, tipo: 'lista', config: { lineas: ['Dune', 'Fundación'] } },
+  ];
+}
