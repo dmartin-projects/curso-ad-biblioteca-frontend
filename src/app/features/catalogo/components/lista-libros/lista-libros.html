@@ -1,6 +1,6 @@
 <section class="rejilla">
   @for (libro of libros(); track libro.id) {
-    <app-libro-card [libro]="libro" (reservar)="reservar.emit($event)" />
+    <app-libro-card [libro]="libro" [termino]="termino()" (reservar)="reservar.emit($event)" />
   } @empty {
     <p>No hay libros que coincidan.</p>
   }

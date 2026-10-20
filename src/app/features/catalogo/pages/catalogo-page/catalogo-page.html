@@ -1,4 +1,21 @@
 <h2>Catálogo</h2>
+<button
+  *appSiPermiso="'catalogo.add_libro'; else sinPermiso"
+  type="button"
+  (click)="alta.set(true)"
+>
+  Nuevo libro
+</button>
+<ng-template #sinPermiso
+  ><small>Inicia sesión como bibliotecario para dar de alta libros.</small></ng-template
+>
+@if (alta()) {
+  <app-alta-libro (cerrar)="alta.set(false)" />
+}
+<app-boton-menu ayuda="Más opciones">
+  <button type="button" (click)="compacta.set(!compacta())">Cambiar vista</button>
+  <button type="button" appRequierePermiso="catalogo.delete_libro">Vaciar catálogo</button>
+</app-boton-menu>
 <app-filtros-libros [filtros]="filtros()" (cambio)="filtros.set($event)" />
 <p class="contador">{{ total() }} libros</p>
 <button type="button" (click)="compacta.set(!compacta())">
@@ -13,6 +30,10 @@
     <p vacio>No hay libros con esos filtros.</p>
   </app-lista>
 } @else {
-  <app-lista-libros [libros]="pagina_()" (reservar)="reservar($event)" />
+  <app-lista-libros
+    [libros]="pagina_()"
+    [termino]="filtros().texto"
+    (reservar)="reservar($event)"
+  />
 }
 <app-paginador [total]="total()" [tamano]="tamano" [(pagina)]="pagina" />

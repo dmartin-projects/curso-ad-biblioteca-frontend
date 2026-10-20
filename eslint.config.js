@@ -101,7 +101,10 @@ module.exports = defineConfig([
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
-    rules: {},
+    rules: {
+      // un <h3>/<a> vacío está bien si su texto lo pone la directive appResaltar (módulo 43)
+      '@angular-eslint/template/elements-content': ['error', { allowList: ['appResaltar'] }],
+    },
   },
   // ── Fronteras entre features, core y shared ──
   {

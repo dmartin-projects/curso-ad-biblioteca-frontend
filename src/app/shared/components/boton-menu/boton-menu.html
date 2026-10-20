@@ -1,0 +1,6 @@
+<button type="button" [attr.aria-expanded]="abierto()" (click)="abierto.set(!abierto())">⋯</button>
+@if (abierto()) {
+  <!-- el clic llega de los botones del menú (event delegation): con teclado ya funcionan -->
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+  <div (click)="abierto.set(false)"><ng-content /></div>
+}

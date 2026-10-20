@@ -54,7 +54,9 @@ describe('CatalogoPage (contenedor)', () => {
 
   it('vista compacta con Lista<T> y plantilla de fila', async () => {
     const { fixture, el } = await crear();
-    el.querySelector<HTMLButtonElement>('button')!.click(); // "Vista compacta"
+    Array.from(el.querySelectorAll('button'))
+      .find((b) => b.textContent?.includes('Vista compacta'))!
+      .click();
     await fixture.whenStable();
     const filas = Array.from(el.querySelectorAll('app-lista li')).map((li) =>
       li.textContent?.trim(),

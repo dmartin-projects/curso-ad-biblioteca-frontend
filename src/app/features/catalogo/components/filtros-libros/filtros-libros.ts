@@ -1,9 +1,11 @@
 import { Component, ElementRef, input, output, viewChild } from '@angular/core';
+import { Autofocus } from '../../../../shared/directives/autofocus';
 import { FiltrosLibro } from '../../interfaces/catalogo.models';
 
 /** Presentación: no guarda estado propio. Recibe los filtros y emite los nuevos. */
 @Component({
   selector: 'app-filtros-libros',
+  imports: [Autofocus],
   templateUrl: './filtros-libros.html',
   host: { '(document:keydown)': 'atajo($event)' },
 })

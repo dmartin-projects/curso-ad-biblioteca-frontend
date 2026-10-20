@@ -1,5 +1,9 @@
 import { Component, computed, effect, inject, linkedSignal, signal } from '@angular/core';
+import { RequierePermiso } from '../../../../core/auth/permisos/requiere-permiso';
+import { SiPermiso } from '../../../../core/auth/permisos/si-permiso';
+import { BotonMenu } from '../../../../shared/components/boton-menu/boton-menu';
 import { Lista } from '../../../../shared/components/lista/lista';
+import { AltaLibro } from '../../components/alta-libro/alta-libro';
 import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { CarritoReservas } from '../../../../core/carrito/carrito-reservas';
 import { FILTROS_VACIOS, FiltrosLibro, Libro } from '../../interfaces/catalogo.models';
@@ -27,7 +31,16 @@ function normalizar(texto: string): string {
 /** Contenedor: tiene el estado, decide qué hacer con los eventos. Casi sin HTML. */
 @Component({
   selector: 'app-catalogo-page',
-  imports: [FiltrosLibros, ListaLibros, Paginador, Lista],
+  imports: [
+    FiltrosLibros,
+    ListaLibros,
+    Paginador,
+    Lista,
+    SiPermiso,
+    RequierePermiso,
+    BotonMenu,
+    AltaLibro,
+  ],
   templateUrl: './catalogo-page.html',
 })
 export class CatalogoPage {
@@ -38,6 +51,7 @@ export class CatalogoPage {
   readonly libros = signal<Libro[]>(LIBROS_DE_PRUEBA); // en el módulo 51, un httpResource
   readonly filtros = signal<FiltrosLibro>(leerFiltros());
   readonly compacta = signal(false);
+  readonly alta = signal(false);
   /** Vuelve a 1 cada vez que cambian los filtros (módulo 41). */
   readonly pagina = linkedSignal({ source: this.filtros, computation: () => 1 });
 

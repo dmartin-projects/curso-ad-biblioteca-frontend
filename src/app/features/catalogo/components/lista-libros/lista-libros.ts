@@ -11,5 +11,6 @@ import { LibroCard } from '../libro-card/libro-card';
 })
 export class ListaLibros {
   readonly libros = input.required<readonly Libro[]>();
+  readonly termino = input('');
   readonly reservar = output<number>();
 }

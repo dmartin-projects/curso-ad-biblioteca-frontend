@@ -1,0 +1,6 @@
+<form (submit)="$event.preventDefault()">
+  <label>Título <input name="titulo" appAutofocus /></label>
+  <label>ISBN <input name="isbn" /></label>
+  <button type="submit">Guardar</button>
+  <button type="button" (click)="cerrar.emit()">Cancelar</button>
+</form>
